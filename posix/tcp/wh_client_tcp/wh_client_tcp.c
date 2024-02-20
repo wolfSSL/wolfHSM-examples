@@ -15,17 +15,17 @@
 #endif
 
 
-#include "wolfhsm/error.h"
+#include <wolfhsm/wh_error.h>
 
 #if 0
 #include "wolfhsm/nvm.h"
 #include "wolfhsm/nvm_flash.h"
 #endif
 
-#include "wolfhsm/comm.h"
-#include "wolfhsm/message.h"
+#include <wolfhsm/wh_comm.h>
+#include <wolfhsm/wh_message.h>
 #include "wolfhsm/wh_client.h"
-#include "port/posix/transport_tcp.h"
+#include <port/posix/posix_transport_tcp.h>
 
 /** Local declarations */
 static void* wh_ClientTask(void* cf);

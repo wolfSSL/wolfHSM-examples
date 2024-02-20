@@ -53,13 +53,11 @@ SRC_ASM +=
 # WolfHSM source code
 SRC_C += \
             $(WOLFHSM_DIR)/src/wh_server.c \
-            $(WOLFHSM_DIR)/src/comm.c \
-            $(WOLFHSM_DIR)/src/message_comm.c \
-            $(WOLFHSM_DIR)/src/shmbuffer.c \
-            $(WOLFHSM_DIR)/src/transport_shm.c
+            $(WOLFHSM_DIR)/src/wh_comm.c \
+            $(WOLFHSM_DIR)/src/wh_message_comm.c \
 
 # WolfHSM port code
-SRC_C += $(WOLFHSM_DIR)/port/posix/transport_tcp.c
+SRC_C += $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
 
 # APP
 SRC_C += ./src/wh_server_tcp.c 
