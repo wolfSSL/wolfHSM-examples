@@ -7,8 +7,6 @@
 #include <string.h> /* For memset, memcpy */
 #include <unistd.h> /* For sleep */
 
-#include <pthread.h> /* For pthread_create/cancel/join/_t */
-
 #if 0
 #ifndef WOLFSSL_USER_SETTINGS
     #include "wolfssl/options.h"
@@ -22,7 +20,6 @@
 #if 0
 #include "wolfhsm/nvm.h"
 #include "wolfhsm/nvm_flash.h"
-#include "wolfhsm/target/posixsim.h"
 #endif
 
 #include "wolfhsm/comm.h"

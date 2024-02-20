@@ -3,10 +3,9 @@ CMD_ECHO =
 
 # Important directories
 BUILD_DIR = ./Build
-WOLFHSM_DIR = $(CURDIR)/../../../wolfHSM
+WOLFHSM_DIR = $(CURDIR)/../../../../wolfHSM
 
-WOLFSSL_DIR ?= ./wolfssl
-INCLUDE_DIR = ./include
+WOLFSSL_DIR ?= $(CURDIR)/../../../../wolfssl
 
 # Project name
 BIN = wh_server_tcp
@@ -16,7 +15,6 @@ USER_SETTINGS_DIR ?= ./
 INC = -I$(WOLFHSM_DIR) \
       -I$(USER_SETTINGS_DIR) \
       -I$(WOLFSSL_DIR) \
-      -I$(INCLUDE_DIR)
 
 # Defines
 DEF = -DWOLFSSL_USER_SETTINGS -D_GNUC_
@@ -27,7 +25,7 @@ ARCHFLAGS ?=
 # Compiler and linker flags
 ASFLAGS ?= $(ARCHFLAGS)
 CFLAGS_EXTRA ?= -Wno-cpp
-CFLAGS ?= $(ARCHFLAGS) -std=gnu11 -Wall $(CFLAGS_EXTRA)
+CFLAGS ?= $(ARCHFLAGS) -std=c99 -Wall $(CFLAGS_EXTRA)
 LDFLAGS ?= $(ARCHFLAGS)
 
 # LD: generate map
@@ -37,7 +35,7 @@ LDFLAGS ?= $(ARCHFLAGS)
 LIBS = -lc
 
 # Optimization level and place functions / data into separate sections to allow dead code removal 
-CFLAGS += -Os -ffunction-sections -fdata-sections 
+CFLAGS += -O0 -ffunction-sections -fdata-sections 
 #-fstrict-volatile-bitfields #-fno-builtin
 
 # Remove unused sections and link time optimizations
