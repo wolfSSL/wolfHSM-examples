@@ -15,17 +15,17 @@
 #endif
 
 
-#include <wolfhsm/wh_error.h>
+#include "wolfhsm/wh_error.h"
 
 #if 0
 #include "wolfhsm/nvm.h"
 #include "wolfhsm/nvm_flash.h"
 #endif
 
-#include <wolfhsm/wh_comm.h>
-#include <wolfhsm/wh_message.h>
+#include "wolfhsm/wh_comm.h"
+#include "wolfhsm/wh_message.h"
 #include "wolfhsm/wh_server.h"
-#include <port/posix/posix_transport_tcp.h>
+#include "port/posix/posix_transport_tcp.h"
 
 /** Local declarations */
 static void* wh_ServerTask(void* cf);
@@ -80,13 +80,14 @@ int main(int argc, char** argv)
     (void)argc; (void)argv;
 
     /* Server configuration/context */
-    whTransportTcpServerContext tsc[1] = {};
-    whTransportTcpConfig mytcpconfig[1] = {{
+    whTransportServerCb ptttcb[1] = {PTT_SERVER_CB};
+    posixTransportTcpServerContext tsc[1] = {};
+    posixTransportTcpConfig mytcpconfig[1] = {{
             .server_ip_string = WH_SERVER_TCP_IPSTRING,
             .server_port = WH_SERVER_TCP_PORT,
     }};
     whCommServerConfig cs_conf[1] = {{
-            .transport_cb = whTransportTcpServer_Cb,
+            .transport_cb = ptttcb,
             .transport_context = (void*)tsc,
             .transport_config = (void*)mytcpconfig,
             .server_id = WH_SERVER_ID,
