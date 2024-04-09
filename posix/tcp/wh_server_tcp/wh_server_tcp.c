@@ -43,7 +43,7 @@ static void* wh_ServerTask(void* cf)
 {
     whServerConfig* config = (whServerConfig*)cf;
     int ret = 0;
-    whServer server[1];
+    whServerContext server[1];
     int counter = 1;
 
     if (config == NULL) {
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
             .server_id = WH_SERVER_ID,
     }};
     whServerConfig s_conf[1] = {{
-            .comm = cs_conf,
+            .comm_config = cs_conf,
     }};
 
     wh_ServerTask(s_conf);

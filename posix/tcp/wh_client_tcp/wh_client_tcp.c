@@ -46,7 +46,7 @@ static void* wh_ClientTask(void* cf)
 {
     whClientConfig* config = (whClientConfig*)cf;
     int ret = 0;
-    whClient client[1];
+    whClientContext client[1];
     int counter = 1;
 
 
