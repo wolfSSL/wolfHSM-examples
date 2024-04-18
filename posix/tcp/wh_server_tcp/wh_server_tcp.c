@@ -7,21 +7,7 @@
 #include <string.h> /* For memset, memcpy */
 #include <unistd.h> /* For sleep */
 
-#if 0
-#ifndef WOLFSSL_USER_SETTINGS
-    #include "wolfssl/options.h"
-#endif
-#include "wolfssl/wolfcrypt/settings.h"
-#endif
-
-
 #include "wolfhsm/wh_error.h"
-
-#if 0
-#include "wolfhsm/nvm.h"
-#include "wolfhsm/nvm_flash.h"
-#endif
-
 #include "wolfhsm/wh_comm.h"
 #include "wolfhsm/wh_message.h"
 #include "wolfhsm/wh_server.h"
@@ -31,7 +17,6 @@
 static void* wh_ServerTask(void* cf);
 
 enum {
-	REPEAT_COUNT = 10,
 	ONE_MS = 1000,
 };
 
@@ -41,10 +26,10 @@ enum {
 
 static void* wh_ServerTask(void* cf)
 {
+    whServerContext server[1];
     whServerConfig* config = (whServerConfig*)cf;
     int ret = 0;
-    whServerContext server[1];
-    int counter = 1;
+    int am_connected = WH_COMM_CONNECTED;
 
     if (config == NULL) {
         return NULL;
@@ -53,22 +38,20 @@ static void* wh_ServerTask(void* cf)
     ret = wh_Server_Init(server, config);
     printf("wh_Server_Init:%d\n", ret);
 
-    for(counter = 0; counter < REPEAT_COUNT; counter++)
-    {
-        do {
-            ret = wh_Server_HandleRequestMessage(server);
-            if (ret != WH_ERROR_NOTREADY) {
-                printf("Server HandleRequestMessage:%d\n",ret);
-            }
-        } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
-
-        if (ret != 0) {
-            printf("Server had failure. Exiting\n");
-            break;
+    for (   wh_Server_SetConnected(server, am_connected);
+            am_connected == WH_COMM_CONNECTED;
+            wh_Server_GetConnected(server, &am_connected) ){
+        ret = wh_Server_HandleRequestMessage(server);
+        if (ret == WH_ERROR_NOTREADY) {
+            usleep(ONE_MS);
+        } else if (ret == WH_ERROR_OK) {
+            printf("Server HandleRequestMessage:%d\n",ret);
         } else {
-            printf("Server processed message %d of %d\n", counter + 1, REPEAT_COUNT);
+            printf("Failed to wh_Server_HandleRequestMessage: %d\n", ret);
+            break;
         }
     }
+
     ret = wh_Server_Cleanup(server);
     printf("ServerCleanup:%d\n", ret);
 

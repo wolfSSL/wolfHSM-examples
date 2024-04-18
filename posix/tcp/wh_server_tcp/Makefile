@@ -73,6 +73,7 @@ SRC_C += \
 SRC_C += \
             $(WOLFHSM_DIR)/src/wh_server.c \
             $(WOLFHSM_DIR)/src/wh_server_customcb.c \
+            $(WOLFHSM_DIR)/src/wh_server_dma.c \
             $(WOLFHSM_DIR)/src/wh_server_nvm.c \
             $(WOLFHSM_DIR)/src/wh_server_crypto.c \
             $(WOLFHSM_DIR)/src/wh_server_keystore.c \
