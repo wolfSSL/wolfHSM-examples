@@ -4,9 +4,10 @@
 
 /* Common configuration */
 #define WOLFCRYPT_ONLY
-//#define BIG_ENDIAN_ORDER
+/* #define BIG_ENDIAN_ORDER */
 #define WOLF_CRYPTO_CB
-//#define WOLFSSL_KEY_GEN
+/* Key gen is currently required on the server */
+#define WOLFSSL_KEY_GEN
 #define SINGLE_THREADED
 #define WC_NO_ASYNC_THREADING
 #define WOLFSSL_USE_ALIGN

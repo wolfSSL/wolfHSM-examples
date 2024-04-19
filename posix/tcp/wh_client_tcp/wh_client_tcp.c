@@ -7,21 +7,7 @@
 #include <string.h> /* For memset, memcpy */
 #include <unistd.h> /* For usleep */
 
-#if 0
-#ifndef WOLFSSL_USER_SETTINGS
-    #include "wolfssl/options.h"
-#endif
-#include "wolfssl/wolfcrypt/settings.h"
-#endif
-
-
 #include "wolfhsm/wh_error.h"
-
-#if 0
-#include "wolfhsm/nvm.h"
-#include "wolfhsm/nvm_flash.h"
-#endif
-
 #include "wolfhsm/wh_comm.h"
 #include "wolfhsm/wh_message.h"
 #include "wolfhsm/wh_client.h"
@@ -100,7 +86,7 @@ static void* wh_ClientTask(void* cf)
             break;
         }
     }
-
+    wh_Client_CommClose(client);
     ret = wh_Client_Cleanup(client);
     printf("wh_Client_Cleanup:%d\n", ret);
     return NULL;
