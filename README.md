@@ -18,10 +18,10 @@ WOLFSSL_DIR ?= $(CURDIR)/../../../../wolfssl
 ```
 After making sure the `WOLFHSM_DIR` matches the directory name downloaded for wolfHSM the next step is building the client and server.
 ### Building wh_server_tcp
-cd into `wolfHSM-examples/posix/tcp/wh_server_tcp` run `make`. Once completed an `.elf` excutable will be made in `Build` named `wh_server_tcp.elf`.
+cd into `wolfHSM-examples/posix/tcp/wh_server_tcp`, next `make`. Once completed an `.elf` executable will be made in `Build` named `wh_server_tcp.elf`.
 
 ### Building wh_client_tcp
-cd into `wolfHSM-examples/posix/tcp/wh_client_tcp` run `make`. Once completed an `.elf` excutable will be made in `Build` named `wh_client_tcp.elf`. 
+Building the client will follow the same steps as the building the server. cd into `wolfHSM-examples/posix/tcp/wh_client_tcp`, next `make`. Once completed an `.elf` executable will be made in `Build` named `wh_client_tcp.elf`.
 
 ### Executables
 Once both the server and the client `.elf` files have been made the example can now be ran. In the root directory for wolfHSM-examples run `./posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf`.
