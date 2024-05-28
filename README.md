@@ -3,7 +3,7 @@
 ## Current Examples
 
 ### Posix TCP server and client
-The only example currently is a Posix tcp server and client.
+The only example currently is a POSIX TCP server and client, this will boot up the wolfHSM server in the server thread as well as boot up the client in the client thread. Next it runs the units tests on the client side against the server.
 
 ### Building
 To build the client and the server wolfHSM must be configured and built along side wolfSSL.
@@ -18,14 +18,14 @@ WOLFSSL_DIR ?= $(CURDIR)/../../../../wolfssl
 ```
 After making sure the `WOLFHSM_DIR` matches the directory name downloaded for wolfHSM the next step is building the client and server.
 ### Building wh_server_tcp
-cd into `wolfHSM-examples/posix/tcp/wh_server_tcp`, next `make`. Once completed an `.elf` executable will be made in `Build` named `wh_server_tcp.elf`.
+`cd` into `wolfHSM-examples/posix/tcp/wh_server_tcp`, next `make`. Once completed an `.elf` executable will be made in `Build` named `wh_server_tcp.elf`.
 
 ### Building wh_client_tcp
-Building the client will follow the same steps as the building the server. cd into `wolfHSM-examples/posix/tcp/wh_client_tcp`, next `make`. Once completed an `.elf` executable will be made in `Build` named `wh_client_tcp.elf`.
+Building the client will follow the same steps as the building the server. `cd` into `wolfHSM-examples/posix/tcp/wh_client_tcp`, next `make`. Once completed an `.elf` executable will be made in `Build` named `wh_client_tcp.elf`.
 
 ### Executables
 Once both the server and the client `.elf` files have been made the example can now be ran. In the root directory for wolfHSM-examples run `./posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf`.
-In a sperate instnace run `./posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf` out of the root directory for wolfHSM-examples for the client.
+In a sperate instance run `./posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf` out of the root directory for wolfHSM-examples for the client.
 
 ### Results
 After all steps are you complete you should see the following outputs.
