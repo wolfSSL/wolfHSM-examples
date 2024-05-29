@@ -22,7 +22,7 @@ enum {
 
 #define WH_SERVER_TCP_IPSTRING "127.0.0.1"
 #define WH_SERVER_TCP_PORT 23456
-#define WH_SERVER_ID 5678
+#define WH_SERVER_ID 56
 
 static void* wh_ServerTask(void* cf)
 {
