@@ -60,8 +60,7 @@ static void* wh_ClientTask(void* cf)
             ret = wh_Client_EchoRequest(client,
                     tx_req_len, tx_req);
             if( ret != WH_ERROR_NOTREADY) {
-                //printf("Client EchoRequest:%d, len:%d, %s\n",
-                  //      ret, tx_req_len, tx_req);
+                continue;
             }
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
@@ -76,8 +75,6 @@ static void* wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoResponse(client,
                     &rx_resp_len, rx_resp);
-            /*printf("Client EchoResponse:%d, len:%d, %s\n",
-                    ret, rx_resp_len, rx_resp);*/
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
         if (ret != 0) {
@@ -90,7 +87,6 @@ static void* wh_ClientTask(void* cf)
     if (ret == 0) {
         printf("Successfull connection!\n");
     }
-//    printf("wh_Client_Cleanup:%d\n", ret);
     printf("Client disconnected\n");
     return NULL;
 }
