@@ -26,7 +26,7 @@ enum {
 
 #define WH_SERVER_TCP_IPSTRING "127.0.0.1"
 #define WH_SERVER_TCP_PORT 23456
-#define WH_CLIENT_ID 1234
+#define WH_CLIENT_ID 12
 
 static void* wh_ClientTask(void* cf)
 {
@@ -34,7 +34,6 @@ static void* wh_ClientTask(void* cf)
     int ret = 0;
     whClientContext client[1];
     int counter = 1;
-
 
     uint8_t  tx_req[REQ_SIZE] = {0};
     uint16_t tx_req_len = 0;
@@ -47,7 +46,7 @@ static void* wh_ClientTask(void* cf)
     }
 
     ret = wh_Client_Init(client, config);
-    printf("wh_Client_Init:%d\n", ret);
+    printf("Client connecting to server...\n");
 
     if (ret != 0) {
         perror("Init error:");
@@ -61,8 +60,8 @@ static void* wh_ClientTask(void* cf)
             ret = wh_Client_EchoRequest(client,
                     tx_req_len, tx_req);
             if( ret != WH_ERROR_NOTREADY) {
-                printf("Client EchoRequest:%d, len:%d, %s\n",
-                        ret, tx_req_len, tx_req);
+                //printf("Client EchoRequest:%d, len:%d, %s\n",
+                  //      ret, tx_req_len, tx_req);
             }
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
@@ -77,8 +76,8 @@ static void* wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoResponse(client,
                     &rx_resp_len, rx_resp);
-            printf("Client EchoResponse:%d, len:%d, %s\n",
-                    ret, rx_resp_len, rx_resp);
+            /*printf("Client EchoResponse:%d, len:%d, %s\n",
+                    ret, rx_resp_len, rx_resp);*/
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
         if (ret != 0) {
@@ -88,7 +87,11 @@ static void* wh_ClientTask(void* cf)
     }
     wh_Client_CommClose(client);
     ret = wh_Client_Cleanup(client);
-    printf("wh_Client_Cleanup:%d\n", ret);
+    if (ret == 0) {
+        printf("Successfull connection!\n");
+    }
+//    printf("wh_Client_Cleanup:%d\n", ret);
+    printf("Client disconnected\n");
     return NULL;
 }
 
