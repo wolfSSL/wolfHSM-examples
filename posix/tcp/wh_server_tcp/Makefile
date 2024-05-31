@@ -60,6 +60,7 @@ SRC_C += \
             $(WOLFSSL_DIR)/wolfcrypt/src/asn.c \
             $(WOLFSSL_DIR)/wolfcrypt/src/coding.c \
             $(WOLFSSL_DIR)/wolfcrypt/src/wolfmath.c \
+            $(WOLFSSL_DIR)/wolfcrypt/src/ecc.c \
             $(WOLFSSL_DIR)/wolfcrypt/src/tfm.c \
             $(WOLFSSL_DIR)/wolfcrypt/src/fe_operations.c \
             $(WOLFSSL_DIR)/wolfcrypt/src/rsa.c \

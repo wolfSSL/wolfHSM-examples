@@ -41,6 +41,8 @@ static void* wh_ClientTask(void* cf)
     uint8_t  rx_resp[RESP_SIZE] = {0};
     uint16_t rx_resp_len = 0;
 
+    int connectionMessage = 0;
+
     if (config == NULL) {
         return NULL;
     }
@@ -59,8 +61,11 @@ static void* wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoRequest(client,
                     tx_req_len, tx_req);
-            if( ret != WH_ERROR_NOTREADY) {
-                continue;
+            if(ret != WH_ERROR_NOTREADY) {
+                if (!connectionMessage) {
+                    printf("Successful connection!\n");
+                    connectionMessage = 1;
+                }
             }
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
@@ -84,9 +89,6 @@ static void* wh_ClientTask(void* cf)
     }
     wh_Client_CommClose(client);
     ret = wh_Client_Cleanup(client);
-    if (ret == 0) {
-        printf("Successfull connection!\n");
-    }
     printf("Client disconnected\n");
     return NULL;
 }
