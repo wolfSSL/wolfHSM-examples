@@ -61,10 +61,11 @@ static void* wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoRequest(client,
                     tx_req_len, tx_req);
-            if(ret != WH_ERROR_NOTREADY) {
-                if (!connectionMessage) {
-                    printf("Successful connection!\n");
-                    connectionMessage = 1;
+            if (ret != WH_ERROR_NOTREADY) {
+                if (ret == 0) {
+                    printf("Client sent request successfully\n");
+                } else {
+                    printf("wh_CLient_EchoRequest failed with ret=%d\n", ret);
                 }
             }
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
