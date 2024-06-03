@@ -35,7 +35,6 @@ static void* wh_ClientTask(void* cf)
     whClientContext client[1];
     int counter = 1;
 
-
     uint8_t  tx_req[REQ_SIZE] = {0};
     uint16_t tx_req_len = 0;
 
@@ -47,7 +46,7 @@ static void* wh_ClientTask(void* cf)
     }
 
     ret = wh_Client_Init(client, config);
-    printf("wh_Client_Init:%d\n", ret);
+    printf("Client connecting to server...\n");
 
     if (ret != 0) {
         perror("Init error:");
@@ -60,9 +59,12 @@ static void* wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoRequest(client,
                     tx_req_len, tx_req);
-            if( ret != WH_ERROR_NOTREADY) {
-                printf("Client EchoRequest:%d, len:%d, %s\n",
-                        ret, tx_req_len, tx_req);
+            if (ret != WH_ERROR_NOTREADY) {
+                if (ret == 0) {
+                    printf("Client sent request successfully\n");
+                } else {
+                    printf("wh_CLient_EchoRequest failed with ret=%d\n", ret);
+                }
             }
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
@@ -77,8 +79,6 @@ static void* wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoResponse(client,
                     &rx_resp_len, rx_resp);
-            printf("Client EchoResponse:%d, len:%d, %s\n",
-                    ret, rx_resp_len, rx_resp);
         } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
 
         if (ret != 0) {
@@ -88,7 +88,7 @@ static void* wh_ClientTask(void* cf)
     }
     wh_Client_CommClose(client);
     ret = wh_Client_Cleanup(client);
-    printf("wh_Client_Cleanup:%d\n", ret);
+    printf("Client disconnected\n");
     return NULL;
 }
 

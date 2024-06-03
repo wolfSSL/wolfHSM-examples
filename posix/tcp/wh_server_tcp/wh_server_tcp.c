@@ -29,6 +29,7 @@ static void* wh_ServerTask(void* cf)
     whServerContext server[1];
     whServerConfig* config = (whServerConfig*)cf;
     int ret = 0;
+    int connectionMessage = 0;
     whCommConnected am_connected = WH_COMM_CONNECTED;
 
     if (config == NULL) {
@@ -36,17 +37,20 @@ static void* wh_ServerTask(void* cf)
     }
 
     ret = wh_Server_Init(server, config);
-    printf("wh_Server_Init:%d\n", ret);
+    printf("Waiting for connection...\n");
 
     if (ret == 0) {
         wh_Server_SetConnected(server, am_connected);
 
-        while(am_connected == WH_COMM_CONNECTED) {
+        while (am_connected == WH_COMM_CONNECTED) {
             ret = wh_Server_HandleRequestMessage(server);
             if (ret == WH_ERROR_NOTREADY) {
                 usleep(ONE_MS);
             } else if (ret == WH_ERROR_OK) {
-                printf("Server HandleRequestMessage:%d\n",ret);
+                if (!connectionMessage) {
+                    printf("Successful connection!\n");
+                    connectionMessage = 1;
+                }
             } else {
                 printf("Failed to wh_Server_HandleRequestMessage: %d\n", ret);
                 break;
@@ -54,7 +58,7 @@ static void* wh_ServerTask(void* cf)
             wh_Server_GetConnected(server, &am_connected);
         }
         ret = wh_Server_Cleanup(server);
-        printf("ServerCleanup:%d\n", ret);
+        printf("Server disconnected\n");
     }
     return NULL;
 }
