@@ -33,60 +33,26 @@ In the root directory for wolfHSM-examples run `./posix/tcp/wh_server_tcp/Build/
 After all steps are you complete you should see the following outputs.
 
 Server output :
+
 ```
-wh_Server_Init:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-Server HandleRequestMessage:0
-ServerCleanup:0
+Waiting for connection...
+Successful connection!
+Server disconnected
 ```
 
 Client output :
+
 ```
-wh_Client_Init:0
-Client EchoRequest:0, len:9, Request:0
-Client EchoResponse:-401, len:0,
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:0
-Client EchoRequest:0, len:9, Request:1
-Client EchoResponse:-401, len:0,
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:1
-Client EchoRequest:0, len:9, Request:2
-Client EchoResponse:-401, len:0,
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:2
-Client EchoRequest:0, len:9, Request:3
-Client EchoResponse:-401, len:0,
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:3
-Client EchoRequest:0, len:9, Request:4
-Client EchoResponse:-401, len:0,
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:4
-Client EchoRequest:0, len:9, Request:5
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:5
-Client EchoRequest:0, len:9, Request:6
-Client EchoResponse:-401, len:0,
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:6
-Client EchoRequest:0, len:9, Request:7
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:7
-Client EchoRequest:0, len:9, Request:8
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:8
-Client EchoRequest:0, len:9, Request:9
-Client EchoResponse:-401, len:0,
-Client EchoResponse:0, len:9, Request:9
-wh_Client_Cleanup:0
+Client connecting to server...
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client sent request successfully
+Client disconnected
 ```
