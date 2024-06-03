@@ -41,8 +41,6 @@ static void* wh_ClientTask(void* cf)
     uint8_t  rx_resp[RESP_SIZE] = {0};
     uint16_t rx_resp_len = 0;
 
-    int connectionMessage = 0;
-
     if (config == NULL) {
         return NULL;
     }
