@@ -13,6 +13,8 @@
 #define HAVE_WC_INTROSPECTION
 #define WOLFSSL_IGNORE_FILE_WARN
 
+#define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
+
 #define WOLFSSL_NO_MALLOC
 
 /* Hardening options */
