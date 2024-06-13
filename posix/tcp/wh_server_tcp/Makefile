@@ -43,7 +43,7 @@ CFLAGS += -O0 -ffunction-sections -fdata-sections
 #-nostartfiles #-nodefaultlibs # -nostdlib 
 
 # Debugging
-DBGFLAGS = #-ggdb -g3
+DBGFLAGS = -ggdb -g3
 CFLAGS += $(DBGFLAGS)
 LDFLAGS += $(DBGFLAGS)
 

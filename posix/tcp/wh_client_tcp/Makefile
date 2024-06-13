@@ -1,11 +1,12 @@
 # Set to @ if you want to suppress command echo
-CMD_ECHO = 
+CMD_ECHO =
 
 # Important directories
 BUILD_DIR = ./Build
 WOLFHSM_DIR = $(CURDIR)/../../../../wolfHSM
-
+WOLFHSM_CLIENT_DEMO_DIR = $(CURDIR)/../../../demo/client
 WOLFSSL_DIR ?= $(CURDIR)/../../../../wolfssl
+
 
 # Project name
 BIN = wh_client_tcp
@@ -15,12 +16,13 @@ USER_SETTINGS_DIR ?= ./
 INC = -I$(WOLFHSM_DIR) \
       -I$(USER_SETTINGS_DIR) \
       -I$(WOLFSSL_DIR) \
+      -I$(WOLFHSM_CLIENT_DEMO_DIR)
 
 # Defines
 DEF = -DWOLFSSL_USER_SETTINGS -D_GNUC_
- 
+
 # Architecture
-ARCHFLAGS ?= 
+ARCHFLAGS ?=
 
 # Compiler and linker flags
 ASFLAGS ?= $(ARCHFLAGS)
@@ -34,21 +36,21 @@ LDFLAGS ?= $(ARCHFLAGS)
 # Libc for printf
 LIBS = -lc
 
-# Optimization level and place functions / data into separate sections to allow dead code removal 
-CFLAGS += -O0 -ffunction-sections -fdata-sections 
+# Optimization level and place functions / data into separate sections to allow dead code removal
+CFLAGS += -O0 -ffunction-sections -fdata-sections
 #-fstrict-volatile-bitfields #-fno-builtin
 
 # Remove unused sections and link time optimizations
-#LDFLAGS += -Wl,--cref -Wl,--gc-sections -static -u _printf_float -Wl,--start-group $(LIBS) -Wl,--end-group -flto 
-#-nostartfiles #-nodefaultlibs # -nostdlib 
+#LDFLAGS += -Wl,--cref -Wl,--gc-sections -static -u _printf_float -Wl,--start-group $(LIBS) -Wl,--end-group -flto
+#-nostartfiles #-nodefaultlibs # -nostdlib
 
 # Debugging
-DBGFLAGS = #-ggdb -g3
+DBGFLAGS = -ggdb -g3
 CFLAGS += $(DBGFLAGS)
 LDFLAGS += $(DBGFLAGS)
 
 # Assembly source files
-SRC_ASM += 
+#SRC_ASM +=
 
 #wolfCrypt source files
 SRC_C += \
@@ -83,8 +85,12 @@ SRC_C += \
 # WolfHSM port\HAL code
 SRC_C += $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
 
+# Demo client code
+SRC_C += $(WOLFHSM_CLIENT_DEMO_DIR)/client_nvm.c \
+         $(WOLFHSM_CLIENT_DEMO_DIR)/client_demo_driver.c
+
 # APP
-SRC_C += ./src/wh_client_tcp.c 
+SRC_C += ./src/wh_client_tcp.c
 
 
 FILENAMES_C = $(notdir $(SRC_C))
