@@ -12,5 +12,3 @@ int client_demo_driver(whClientContext* clientContext)
 
     return rc;
 }
-
-

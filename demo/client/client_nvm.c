@@ -20,12 +20,12 @@ int client_nvm_demo(whClientContext* clientContext)
     uint32_t availSize, reclaimSize;
     whNvmId  availObjects, reclaimObjects;
 
-    whNvmId objectIds[]                     = {1, 2, 3};
-    uint8_t labels[][6] = {"label1", "label2", "label3"};
-    uint8_t data[][6]                       = {"data1", "data2", "data3"};
-    uint8_t     readData[6];
-    whNvmSize   dataLen = 6;
-    whNvmSize   readLen;
+    whNvmId   objectIds[] = {1, 2, 3};
+    uint8_t   labels[][6] = {"label1", "label2", "label3"};
+    uint8_t   data[][6]   = {"data1", "data2", "data3"};
+    uint8_t   readData[6];
+    whNvmSize dataLen = 6;
+    whNvmSize readLen;
 
     if (clientContext == NULL) {
         printf("Client context is NULL\n");
