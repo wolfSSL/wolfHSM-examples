@@ -11,7 +11,7 @@
   * @param clientContext an initialized client context
   * @return 0 on success, error code on failure
  */
-int client_nvm(whClientContext* clientContext)
+int client_nvm_demo(whClientContext* clientContext)
 {
     const int NUM_OBJECTS = 3;
 
