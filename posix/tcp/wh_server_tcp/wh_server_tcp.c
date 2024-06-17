@@ -112,9 +112,15 @@ int main(int argc, char** argv)
     }};
     whNvmContext nvm[1] = {{0}};
 
+    /* Crypto context */
+    whServerCryptoContext crypto[1] = {{
+            .devId = INVALID_DEVID,
+    }};
+
     whServerConfig s_conf[1] = {{
             .comm_config = cs_conf,
             .nvm = nvm,
+            .crypto = crypto,
     }};
 
     rc = wh_Nvm_Init(nvm, n_conf);
