@@ -86,9 +86,9 @@ SRC_C += \
 SRC_C += $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
 
 # Demo client code
-SRC_C += $(WOLFHSM_CLIENT_DEMO_DIR)/client_nvm.c \
-         $(WOLFHSM_CLIENT_DEMO_DIR)/client_keystore.c \
-         $(WOLFHSM_CLIENT_DEMO_DIR)/client_demo_driver.c
+SRC_C += $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_nvm.c \
+         $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_keystore.c \
+         $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_all.c
 
 # APP
 SRC_C += ./src/wh_client_tcp.c

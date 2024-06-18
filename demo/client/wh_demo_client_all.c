@@ -1,6 +1,6 @@
-#include "client_demo_driver.h"
-#include "client_nvm.h"
-#include "client_keystore.h"
+#include "wh_demo_client_all.h"
+#include "wh_demo_client_nvm.h"
+#include "wh_demo_client_keystore.h"
 
 int client_demo_driver(whClientContext* clientContext)
 {

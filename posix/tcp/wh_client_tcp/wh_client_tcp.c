@@ -13,7 +13,7 @@
 #include "wolfhsm/wh_client.h"
 #include "port/posix/posix_transport_tcp.h"
 
-#include "client_demo_driver.h"
+#include "wh_demo_client_all.h"
 
 /** Local declarations */
 static void* wh_ClientTask(void* cf);

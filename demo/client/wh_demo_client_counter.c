@@ -1,4 +1,4 @@
-#include "client_counter.h"
+#include "wh_demo_client_counter.h"
 #include "wolfhsm/wh_error.h"
 
 int client_counter_demo(whClientContext* clientContext)

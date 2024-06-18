@@ -1,3 +1,5 @@
+#include "wh_demo_client_nvm.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
