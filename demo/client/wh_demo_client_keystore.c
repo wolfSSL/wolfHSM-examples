@@ -16,7 +16,7 @@ static void doWorkWithKey(uint16_t keyId)
     /* do crypto, export the key, etc. */
 }
 
-int client_keystore_demo_basic(whClientContext* clientContext)
+int wh_DemoClient_KeystoreBasic(whClientContext* clientContext)
 {
     int      ret;
     uint8_t  key[AES_128_KEY_SIZE] = "0123456789abcdef";
@@ -53,7 +53,7 @@ int client_keystore_demo_basic(whClientContext* clientContext)
 }
 
 
-int client_keystore_demo_committed_key(whClientContext* clientContext)
+int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 {
     int      ret;
     uint16_t keyId                      = WOLFHSM_KEYID_ERASED;
@@ -127,7 +127,7 @@ int client_keystore_demo_committed_key(whClientContext* clientContext)
 }
 
 
-int client_keystore_demo_aes(whClientContext* clientContext)
+int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
 {
     int             ret;
     Aes             aes;

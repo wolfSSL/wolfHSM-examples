@@ -3,6 +3,6 @@
 
 #include "wolfhsm/wh_client.h"
 
-int client_demo_driver(whClientContext* clientContext);
+int wh_DemoClient_All(whClientContext* clientContext);
 
 #endif /* CLIENT_DEMO_DRIVER_H_ */

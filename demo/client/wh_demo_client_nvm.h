@@ -3,6 +3,6 @@
 
 #include "wolfhsm/wh_client.h"
 
-int client_nvm_demo(whClientContext* clientContext);
+int wh_DemoClient_Nvm(whClientContext* clientContext);
 
 #endif /* CLIENT_NVM_H_ */

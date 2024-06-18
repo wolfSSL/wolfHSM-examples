@@ -90,7 +90,7 @@ static void* wh_ClientTask(void* cf)
     }
 
     /* run the client demos */
-    ret = client_demo_driver(client);
+    ret = wh_DemoClient_All(client);
     if (ret != 0) {
         printf("Client demo failed: ret=%d\n", ret);
     }
