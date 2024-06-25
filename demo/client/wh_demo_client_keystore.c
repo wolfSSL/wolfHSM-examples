@@ -9,13 +9,6 @@
 #include "wolfhsm/wh_error.h"
 
 
-static void doWorkWithKey(uint16_t keyId)
-{
-    printf("Doing work with key ID: %d\n", keyId);
-
-    /* do crypto, export the key, etc. */
-}
-
 int wh_DemoClient_KeystoreBasic(whClientContext* clientContext)
 {
     int      ret;
@@ -37,7 +30,6 @@ int wh_DemoClient_KeystoreBasic(whClientContext* clientContext)
      * that the key cache entry is only valid for the lifetime of the server
      * context, so will not persist if the server process is shutdown or the
      * server context is reinitialized */
-    doWorkWithKey(keyId);
 
     /* Evict the key from the HSM cache. The key will no longer be active in the
      * RAM cache and it will not be usable. Any operations requested that refer
@@ -77,7 +69,6 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
      * that the key cache entry is only valid for the lifetime of the server
      * context, so will not persist if the server process is shutdown or the
      * server context is reinitialized */
-    doWorkWithKey(keyId);
 
     /* (Optionally) commit the key to non-volatile storage */
     ret = wh_Client_KeyCommit(clientContext, keyId);
@@ -88,10 +79,8 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
     printf("Key committed with ID: %d\n", keyId);
 
     /* Now that the key is committed to NVM, the keyId will persist and can be
-     * used at any time, including across server restarts */
-    doWorkWithKey(keyId);
-
-    /* The remainder of this function could occur later, including after a
+     * used at any time, including across server restarts. Note that
+     * the remainder of this function could occur later, including after a
      * server restart */
 
     /* Evict the key from the HSM. This will remove the key from the RAM cache
@@ -106,18 +95,19 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 
     /* We can still do work with the evicted key, and after using it, it will be
      * repopulated in the cache */
-    doWorkWithKey(keyId);
 
-    /* Erase the key from the HSM key storage. Its keyId will no longer be usable */
+    /* Erase the key from the HSM key storage. Its keyId will no longer be
+     * usable */
     ret = wh_Client_KeyErase(clientContext, keyId);
     if (ret != 0) {
         printf("Failed to erase key: %d\n", ret);
         return ret;
     }
 
-    /* Key is erased, so no more work can be done. For example, attempting to export the key will fail */
-    ret = wh_Client_KeyExport(clientContext, keyId, exportLabel, sizeof(exportLabel),
-                              exportKey, &exportKeySz);
+    /* Key is erased, so no more work can be done. For example, attempting to
+     * export the key will fail */
+    ret = wh_Client_KeyExport(clientContext, keyId, exportLabel,
+                              sizeof(exportLabel), exportKey, &exportKeySz);
     if (ret != WH_ERROR_NOTFOUND) {
         printf("Key should not be found: instead got %d\n", ret);
         return ret;
@@ -129,19 +119,19 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 
 int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
 {
-    int             ret;
-    Aes             aes;
-    uint8_t   key[AES_128_KEY_SIZE] = "0123456789abcdef";
-    uint8_t   iv[AES_IV_SIZE]   = "1234567890abcdef";
-    uint8_t         label[] = "my secret AES key";
-    uint8_t         plainText[]       = "This is a test.";
-    uint8_t         cipherText[sizeof(plainText)];
-    uint8_t         decryptedText[sizeof(plainText)];
-    uint16_t        keyId   = WOLFHSM_KEYID_ERASED;
+    int      ret;
+    Aes      aes;
+    uint8_t  key[AES_128_KEY_SIZE] = "0123456789abcdef";
+    uint8_t  iv[AES_IV_SIZE]       = "1234567890abcdef";
+    uint8_t  label[]               = "my secret AES key";
+    uint8_t  plainText[]           = "This is a test.";
+    uint8_t  cipherText[sizeof(plainText)];
+    uint8_t  decryptedText[sizeof(plainText)];
+    uint16_t keyId = WOLFHSM_KEYID_ERASED;
 
     /* Cache the AES key in the HSM */
-    ret = wh_Client_KeyCache(clientContext, 0, label, sizeof(label), key, sizeof(key),
-                             &keyId);
+    ret = wh_Client_KeyCache(clientContext, 0, label, sizeof(label), key,
+                             sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to cache key: %d\n", ret);
         return ret;
