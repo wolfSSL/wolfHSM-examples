@@ -13,6 +13,8 @@
 #include "wolfhsm/wh_client.h"
 #include "port/posix/posix_transport_tcp.h"
 
+#include "wh_demo_client_all.h"
+
 /** Local declarations */
 static void* wh_ClientTask(void* cf);
 
@@ -86,6 +88,14 @@ static void* wh_ClientTask(void* cf)
             break;
         }
     }
+
+    /* run the client demos */
+    ret = wh_DemoClient_All(client);
+    if (ret != 0) {
+        printf("Client demo failed: ret=%d\n", ret);
+    }
+
+
     wh_Client_CommClose(client);
     ret = wh_Client_Cleanup(client);
     printf("Client disconnected\n");

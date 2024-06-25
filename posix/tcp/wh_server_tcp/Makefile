@@ -43,7 +43,7 @@ CFLAGS += -O0 -ffunction-sections -fdata-sections
 #-nostartfiles #-nodefaultlibs # -nostdlib 
 
 # Debugging
-DBGFLAGS = #-ggdb -g3
+DBGFLAGS = -ggdb -g3
 CFLAGS += $(DBGFLAGS)
 LDFLAGS += $(DBGFLAGS)
 
@@ -78,6 +78,7 @@ SRC_C += \
             $(WOLFHSM_DIR)/src/wh_server_nvm.c \
             $(WOLFHSM_DIR)/src/wh_server_crypto.c \
             $(WOLFHSM_DIR)/src/wh_server_keystore.c \
+            $(WOLFHSM_DIR)/src/wh_server_counter.c \
             $(WOLFHSM_DIR)/src/wh_nvm.c \
             $(WOLFHSM_DIR)/src/wh_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_comm.c \

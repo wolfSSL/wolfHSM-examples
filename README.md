@@ -1,5 +1,10 @@
 # wolfHSM-examples
 
+This repository contains examples code demonstrating how to use various wolfHSM features. The examples provided are split between port-agnostic demo code, and port-specific server/client applications that use the aformentioned demo code.
+
+- `demo/`: port-agnostic demonstration code (`demo/`). This code is intended to be used as a reference for how to use wolfHSM features, and are organized by high-level wolfHSM feature.
+- `port/`: Example server and client applications for each port. These applications initialize the server and client context and then run the demo code.
+
 ## Current Examples
 Currently, the only public example for wolfHSM uses the POSIX simulator. If you are interested in examples for NDA-restricted hardware platforms, please contact us at support@wolfssl.com.
 
