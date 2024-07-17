@@ -84,7 +84,8 @@ SRC_C += \
             $(WOLFHSM_DIR)/src/wh_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_nvm.c \
-            $(WOLFHSM_DIR)/src/wh_message_customcb.c
+            $(WOLFHSM_DIR)/src/wh_message_customcb.c \
+            $(WOLFHSM_DIR)/src/wh_utils.c
 
 # WolfHSM port\HAL code
 SRC_C += \
