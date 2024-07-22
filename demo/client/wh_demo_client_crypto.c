@@ -193,7 +193,7 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
     curve25519_key curve25519PublicKey[1];
     WC_RNG rng[1];
 
-    /* initialize rng to make the cruve25519 keys */
+    /* initialize rng to make the curve25519 keys */
     ret = wc_InitRng_ex(rng, NULL, WOLFHSM_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitRng_ex %d\n", ret);
@@ -1261,7 +1261,6 @@ exit:
 int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 {
     int ret;
-    int needEvict = 0;
     word32 outLen;
     whKeyId keyId = WOLFHSM_KEYID_ERASED;
     Cmac cmac[1];
@@ -1286,8 +1285,6 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
         goto exit;
     }
 
-    needEvict = 1;
-
     /* set the keyId on the struct */
     ret = wh_Client_SetKeyIdCmac(cmac, keyId);
     if (ret != 0) {
@@ -1310,6 +1307,80 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
         goto exit;
     }
 
+    /* cache the key on the HSM */
+    ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
+        sizeof(keyLabel), key, sizeof(key), &keyId);
+    if (ret != 0) {
+        printf("Failed to wh_Client_KeyCache %d\n", ret);
+        goto exit;
+    }
+
+    /* set the keyId on the struct */
+    ret = wh_Client_SetKeyIdCmac(cmac, keyId);
+    if (ret != 0) {
+        printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
+        goto exit;
+    }
+
+    /* verify the cmac tag using the special HSM oneshot function
+     * wh_Client_AesCmacVerify which is required for pre cached keys */
+    ret = wh_Client_AesCmacVerify(cmac, tag, sizeof(tag), (byte*)message,
+        strlen(message), keyId, NULL);
+    if (ret != 0) {
+        printf("CMAC hash and verify failed with imported key %d\n", ret);
+        goto exit;
+    }
+
+    printf("CMAC hash and verify succeeded with imported key\n");
+exit:
+    (void)wc_CmacFree(cmac);
+    return ret;
+}
+
+int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
+{
+    int ret;
+    word32 outLen;
+    whKeyId keyId = WOLFHSM_KEYID_ERASED;
+    Cmac cmac[1];
+    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char keyLabel[] = "baby's first key";
+    char message[] = "hash and verify me!";
+    byte tag[16];
+
+    /* initialize the cmac struct */
+    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL,
+        WOLFHSM_DEV_ID);
+    if (ret != 0) {
+        printf("Failed to wc_InitCmac_ex %d\n", ret);
+        goto exit;
+    }
+
+    /* cache the key on the HSM */
+    ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
+        sizeof(keyLabel), key, sizeof(key), &keyId);
+    if (ret != 0) {
+        printf("Failed to wh_Client_KeyCache %d\n", ret);
+        goto exit;
+    }
+
+    /* set the keyId on the struct */
+    ret = wh_Client_SetKeyIdCmac(cmac, keyId);
+    if (ret != 0) {
+        printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
+        goto exit;
+    }
+
+    /* generate the cmac tag using the special HSM wh_Client_AesCmacGenerate
+     * function which is required for pre cached keys */
+    outLen = sizeof(tag);
+    ret = wh_Client_AesCmacGenerate(cmac, tag, &outLen, (byte*)message,
+        sizeof(message), keyId, NULL);
+    if (ret != 0) {
+        printf("Failed to wh_Client_AesCmacGenerate %d\n", ret);
+        goto exit;
+    }
+
     /* cache the key on the HSM again, cmac keys are evicted after wc_CmacFinal
      * is called */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
@@ -1319,8 +1390,6 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
         goto exit;
     }
 
-    needEvict = 1;
-
     /* set the keyId on the struct */
     ret = wh_Client_SetKeyIdCmac(cmac, keyId);
     if (ret != 0) {
@@ -1328,18 +1397,16 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
         goto exit;
     }
 
-    /* verify the tag, note that for pre-cached keys we need to use the special
-     * wolfHSM functions wh_Client_AesCmacGenerate and wh_Client_AesCmacVerify
-     * when doing oneshot cmac generation or oneshot verifition, manual steps
-     * can be done as above */
+    /* verify the cmac tag using the special HSM oneshot function
+     * wh_Client_AesCmacVerify which is required for pre cached keys */
     ret = wh_Client_AesCmacVerify(cmac, tag, sizeof(tag), (byte*)message,
-        strlen(message), keyId, NULL);
+        sizeof(message), keyId, NULL);
     if (ret != 0) {
-        printf("CMAC hash and verify failed with imported key %d\n", ret);
+        printf("CMAC hash and verify oneshot failed with imported key %d\n", ret);
         goto exit;
     }
 
-    printf("CMAC hash and verify succeeded with imported key\n");
+    printf("CMAC hash and verify oneshot succeeded with imported key\n");
 exit:
     (void)wc_CmacFree(cmac);
     return ret;

@@ -14,5 +14,6 @@ int wh_DemoClient_CryptoAesGcm(whClientContext* clientContext);
 int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext);
 int wh_DemoClient_CryptoCmac(whClientContext* clientContext);
 int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext);
+int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext);
 
 #endif /* CLIENT_CRYPTO_H_ */

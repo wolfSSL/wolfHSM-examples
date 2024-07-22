@@ -87,5 +87,10 @@ int wh_DemoClient_All(whClientContext* clientContext)
         return rc;
     }
 
+    rc = wh_DemoClient_CryptoCmacOneshotImport(clientContext);
+    if (rc != 0) {
+        return rc;
+    }
+
     return rc;
 }
