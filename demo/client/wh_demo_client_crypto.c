@@ -193,7 +193,7 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
     curve25519_key curve25519PublicKey[1];
     WC_RNG rng[1];
 
-    /* initialize rng to make the cruve25516 keys */
+    /* initialize rng to make the cruve25519 keys */
     ret = wc_InitRng_ex(rng, NULL, WOLFHSM_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitRng_ex %d\n", ret);
@@ -290,15 +290,14 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     int keyFd;
     int keySz;
     word32 outLen;
-    whKeyId keyIdPriv1 = WOLFHSM_KEYID_ERASED;
-    whKeyId keyIdPub1 = WOLFHSM_KEYID_ERASED;
-    whKeyId keyIdPriv2 = WOLFHSM_KEYID_ERASED;
-    whKeyId keyIdPub2 = WOLFHSM_KEYID_ERASED;
-    /* public-two is the public part of private-one, same for the *-two keys */
-    char privKeyFileOne[] = "../../../demo/certs/curve25519-private-one.raw";
-    char pubKeyFileOne[] = "../../../demo/certs/curve25519-public-one.raw";
-    char privKeyFileTwo[] = "../../../demo/certs/curve25519-private-two.raw";
-    char pubKeyFileTwo[] = "../../../demo/certs/curve25519-public-two.raw";
+    whKeyId keyIdPrivBob = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPubAlice = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPrivAlice = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPubBob = WOLFHSM_KEYID_ERASED;
+    char privKeyFileBob[] = "../../../demo/certs/curve25519-private-bob.raw";
+    char pubKeyFileAlice[] = "../../../demo/certs/curve25519-public-alice.raw";
+    char privKeyFileAlice[] = "../../../demo/certs/curve25519-private-alice.raw";
+    char pubKeyFileBob[] = "../../../demo/certs/curve25519-public-bob.raw";
     char keyLabel[] = "baby's first key";
     uint8_t keyBuf[256];
     uint8_t sharedOne[CURVE25519_KEYSIZE];
@@ -306,17 +305,17 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     curve25519_key curve25519PrivateKey[1];
     curve25519_key curve25519PublicKey[1];
 
-    /* open the first private curve25516 key */
-    ret = keyFd = open(privKeyFileOne, O_RDONLY, 0);
+    /* open the first private curve25519 key */
+    ret = keyFd = open(privKeyFileBob, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileOne, ret);
+        printf("Failed to open %s %d\n", privKeyFileBob, ret);
         goto exit;
     }
 
     /* read the first private key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileOne, ret);
+        printf("Failed to read %s %d\n", privKeyFileBob, ret);
         close(keyFd);
         goto exit;
     }
@@ -324,7 +323,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPriv1);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPrivBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -338,23 +337,23 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PrivateKey, keyIdPriv1);
+    ret = wh_Client_SetKeyIdCurve25519(curve25519PrivateKey, keyIdPrivBob);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
         goto exit;
     }
 
-    /* open the first public curve25516 key */
-    ret = keyFd = open(pubKeyFileOne, O_RDONLY, 0);
+    /* open the first public curve25519 key */
+    ret = keyFd = open(pubKeyFileAlice, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileOne, ret);
+        printf("Failed to open %s %d\n", pubKeyFileAlice, ret);
         goto exit;
     }
 
     /* read the first public key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileOne, ret);
+        printf("Failed to read %s %d\n", pubKeyFileAlice, ret);
         close(keyFd);
         goto exit;
     }
@@ -362,7 +361,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPub1);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPubAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -376,7 +375,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PublicKey, keyIdPub1);
+    ret = wh_Client_SetKeyIdCurve25519(curve25519PublicKey, keyIdPubAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
         goto exit;
@@ -395,17 +394,17 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     wc_curve25519_free(curve25519PrivateKey);
     wc_curve25519_free(curve25519PublicKey);
 
-    /* open the second private curve25516 key */
-    ret = keyFd = open(privKeyFileTwo, O_RDONLY, 0);
+    /* open the second private curve25519 key */
+    ret = keyFd = open(privKeyFileAlice, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileTwo, ret);
+        printf("Failed to open %s %d\n", privKeyFileAlice, ret);
         goto exit;
     }
 
     /* read the second private key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileTwo, ret);
+        printf("Failed to read %s %d\n", privKeyFileAlice, ret);
         close(keyFd);
         goto exit;
     }
@@ -413,7 +412,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPriv2);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPrivAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -427,23 +426,23 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PrivateKey, keyIdPriv2);
+    ret = wh_Client_SetKeyIdCurve25519(curve25519PrivateKey, keyIdPrivAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
         goto exit;
     }
 
-    /* open the second public curve25516 key */
-    ret = keyFd = open(pubKeyFileTwo, O_RDONLY, 0);
+    /* open the second public curve25519 key */
+    ret = keyFd = open(pubKeyFileBob, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileTwo, ret);
+        printf("Failed to open %s %d\n", pubKeyFileBob, ret);
         goto exit;
     }
 
     /* read the second public key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileTwo, ret);
+        printf("Failed to read %s %d\n", pubKeyFileBob, ret);
         close(keyFd);
         goto exit;
     }
@@ -451,7 +450,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPub2);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPubBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -465,7 +464,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PublicKey, keyIdPub2);
+    ret = wh_Client_SetKeyIdCurve25519(curve25519PublicKey, keyIdPubBob);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
         goto exit;
@@ -493,26 +492,26 @@ exit:
     wc_curve25519_free(curve25519PrivateKey);
     wc_curve25519_free(curve25519PublicKey);
 
-    if (keyIdPriv1 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPriv1);
+    if (keyIdPrivBob != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPrivBob);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPub1 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPub1);
+    if (keyIdPubAlice != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPubAlice);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPriv2 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPriv2);
+    if (keyIdPrivAlice != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPrivAlice);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPub2 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPub2);
+    if (keyIdPubBob != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPubBob);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
@@ -665,16 +664,16 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     int res;
     int keyFd;
     int keySz;
-    whKeyId keyIdPriv1 = WOLFHSM_KEYID_ERASED;
-    whKeyId keyIdPub1 = WOLFHSM_KEYID_ERASED;
-    whKeyId keyIdPriv2 = WOLFHSM_KEYID_ERASED;
-    whKeyId keyIdPub2 = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPrivBob = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPubAlice = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPrivAlice = WOLFHSM_KEYID_ERASED;
+    whKeyId keyIdPubBob = WOLFHSM_KEYID_ERASED;
     word32 outLen;
     word32 sigLen;
-    char privKeyFileOne[] = "../../../demo/certs/ecc-private-one.raw";
-    char pubKeyFileOne[] = "../../../demo/certs/ecc-public-one.raw";
-    char privKeyFileTwo[] = "../../../demo/certs/ecc-private-two.raw";
-    char pubKeyFileTwo[] = "../../../demo/certs/ecc-public-two.raw";
+    char privKeyFileBob[] = "../../../demo/certs/ecc-private-bob.raw";
+    char pubKeyFileAlice[] = "../../../demo/certs/ecc-public-alice.raw";
+    char privKeyFileAlice[] = "../../../demo/certs/ecc-private-alice.raw";
+    char pubKeyFileBob[] = "../../../demo/certs/ecc-public-bob.raw";
     char keyLabel[] = "baby's first key";
     ecc_key eccPrivate[1];
     ecc_key eccPublic[1];
@@ -697,16 +696,16 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* open the first private ecc key */
-    ret = keyFd = open(privKeyFileOne, O_RDONLY, 0);
+    ret = keyFd = open(privKeyFileBob, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileOne, ret);
+        printf("Failed to open %s %d\n", privKeyFileBob, ret);
         goto exit;
     }
 
     /* read the first private key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileOne, ret);
+        printf("Failed to read %s %d\n", privKeyFileBob, ret);
         close(keyFd);
         goto exit;
     }
@@ -714,7 +713,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPriv1);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPrivBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -735,22 +734,22 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPriv1);
+    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPrivBob);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
     }
     /* open the first public ecc key */
-    ret = keyFd = open(pubKeyFileOne, O_RDONLY, 0);
+    ret = keyFd = open(pubKeyFileAlice, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileOne, ret);
+        printf("Failed to open %s %d\n", pubKeyFileAlice, ret);
         goto exit;
     }
 
     /* read the first public key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileOne, ret);
+        printf("Failed to read %s %d\n", pubKeyFileAlice, ret);
         close(keyFd);
         goto exit;
     }
@@ -758,7 +757,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPub1);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPubAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -779,7 +778,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPub1);
+    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPubAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
@@ -808,16 +807,16 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     wc_ecc_free(eccPublic);
 
     /* open the second private ecc key */
-    ret = keyFd = open(privKeyFileTwo, O_RDONLY, 0);
+    ret = keyFd = open(privKeyFileAlice, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileTwo, ret);
+        printf("Failed to open %s %d\n", privKeyFileAlice, ret);
         goto exit;
     }
 
     /* read the second private key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileTwo, ret);
+        printf("Failed to read %s %d\n", privKeyFileAlice, ret);
         close(keyFd);
         goto exit;
     }
@@ -825,7 +824,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPriv2);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPrivAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -846,23 +845,23 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPriv2);
+    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPrivAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
     }
 
     /* open the second public ecc key */
-    ret = keyFd = open(pubKeyFileTwo, O_RDONLY, 0);
+    ret = keyFd = open(pubKeyFileBob, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileTwo, ret);
+        printf("Failed to open %s %d\n", pubKeyFileBob, ret);
         goto exit;
     }
 
     /* read the second public key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileTwo, ret);
+        printf("Failed to read %s %d\n", pubKeyFileBob, ret);
         close(keyFd);
         goto exit;
     }
@@ -870,7 +869,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPub2);
+        strlen(keyLabel), keyBuf, keySz, &keyIdPubBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -891,7 +890,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPub2);
+    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPubBob);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
@@ -936,26 +935,26 @@ exit:
     wc_ecc_free(eccPublic);
     /* free rng */
     (void)wc_FreeRng(rng);
-    if (keyIdPriv1 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPriv1);
+    if (keyIdPrivBob != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPrivBob);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPub1 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPub1);
+    if (keyIdPubAlice != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPubAlice);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPriv2 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPriv2);
+    if (keyIdPrivAlice != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPrivAlice);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPub2 != WOLFHSM_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPub2);
+    if (keyIdPubBob != WOLFHSM_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdPubBob);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }

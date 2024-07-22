@@ -49,7 +49,6 @@
 
 /* ECC Options */
 #define HAVE_ECC
-//#define NO_ECC
 #define TFM_ECC256
 #define ECC_SHAMIR
 #define HAVE_SUPPORTED_CURVES
