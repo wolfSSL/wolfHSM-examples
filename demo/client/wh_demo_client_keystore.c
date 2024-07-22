@@ -163,7 +163,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
 
     /* set AES context to use the cached key */
-    ret = wh_Client_SetKeyAes(&aes, keyId);
+    ret = wh_Client_SetKeyIdAes(&aes, keyId);
     if (ret != 0) {
         printf("Failed to set key: %d\n", ret);
         return ret;
@@ -216,7 +216,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
         printf("Failed to initialize AES: %d\n", ret);
         return ret;
     }
-    ret = wh_Client_SetKeyAes(&aes, keyId);
+    ret = wh_Client_SetKeyIdAes(&aes, keyId);
     if (ret != 0) {
         printf("Failed to set key: %d\n", ret);
         return ret;
@@ -252,7 +252,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
 
     /* Key was erased, so should be unusable */
-    (void)wh_Client_SetKeyAes(&aes, keyId);
+    (void)wh_Client_SetKeyIdAes(&aes, keyId);
     ret = wc_AesCbcEncrypt(&aes, cipherText, plainText, sizeof(plainText));
     if (ret != WH_ERROR_NOTFOUND) {
         printf("Key should not be found: instead got %d\n", ret);

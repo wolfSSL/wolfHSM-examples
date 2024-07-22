@@ -98,8 +98,7 @@ int wh_DemoClient_Nvm(whClientContext* clientContext)
            availSize, availObjects, reclaimSize, reclaimObjects);
 
     /* Delete one object */
-    rc = wh_Client_NvmDestroyObjects(clientContext, 1, objectIds, 0, NULL,
-                                     &serverRc);
+    rc = wh_Client_NvmDestroyObjects(clientContext, 1, objectIds, &serverRc);
     if (rc != 0 || serverRc != 0) {
         printf("Delete Objects failed with error code: %d, server error code: "
                "%d\n",
@@ -110,7 +109,7 @@ int wh_DemoClient_Nvm(whClientContext* clientContext)
 
     /* Delete multiple objects */
     rc = wh_Client_NvmDestroyObjects(clientContext, NUM_OBJECTS - 1,
-                                     &objectIds[1], 0, NULL, &serverRc);
+                                     &objectIds[1], &serverRc);
     if (rc != 0 || serverRc != 0) {
         printf("Delete Objects failed with error code: %d, server error code: "
                "%d\n",
@@ -121,7 +120,7 @@ int wh_DemoClient_Nvm(whClientContext* clientContext)
 
     /* Reclaim space */
     rc =
-        wh_Client_NvmDestroyObjects(clientContext, 0, NULL, 0, NULL, &serverRc);
+        wh_Client_NvmDestroyObjects(clientContext, 0, NULL, &serverRc);
     if (rc != 0 || serverRc != 0) {
         printf("Reclaim Objects failed with error code: %d, server error code: "
                "%d\n",

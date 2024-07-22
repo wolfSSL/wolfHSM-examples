@@ -121,6 +121,7 @@ int main(int argc, char** argv)
             .comm_config = cs_conf,
             .nvm = nvm,
             .crypto = crypto,
+            .devId = INVALID_DEVID,
     }};
 
     rc = wh_Nvm_Init(nvm, n_conf);
@@ -129,10 +130,13 @@ int main(int argc, char** argv)
         return rc;
     }
 
+    rc = wc_InitRng_ex(crypto->rng, NULL, crypto->devId);
+    if (rc != 0) {
+        printf("Failed to wc_InitRng_ex: %d\n", rc);
+        return rc;
+    }
+
     wh_ServerTask(s_conf);
 
     return 0;
 }
-
-
-
