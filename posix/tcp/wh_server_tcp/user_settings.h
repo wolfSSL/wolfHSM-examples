@@ -6,6 +6,8 @@
 #define WOLFCRYPT_ONLY
 /* #define BIG_ENDIAN_ORDER */
 #define WOLF_CRYPTO_CB
+#define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
+
 /* Key gen is currently required on the server */
 #define WOLFSSL_KEY_GEN
 #define SINGLE_THREADED
