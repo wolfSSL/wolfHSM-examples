@@ -53,27 +53,14 @@ LDFLAGS += $(DBGFLAGS)
 #SRC_ASM +=
 
 #wolfCrypt source files
-SRC_C += \
-            $(WOLFSSL_DIR)/wolfcrypt/src/wc_port.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/memory.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/misc.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/cryptocb.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/random.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/asn.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/coding.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/wolfmath.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/ecc.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/tfm.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/fe_operations.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/rsa.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/curve25519.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/hash.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/sha256.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/aes.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/cmac.c
+SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
+
+#wolfSSL source files
+SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
 
 # wolfHSM source files
-SRC_C += \
+SRC_C += $(wildcard $(WOLFHSM_DIR)/src/*.c)
+#SRC_C += \
             $(WOLFHSM_DIR)/src/wh_client.c \
             $(WOLFHSM_DIR)/src/wh_client_nvm.c \
             $(WOLFHSM_DIR)/src/wh_client_cryptocb.c \
