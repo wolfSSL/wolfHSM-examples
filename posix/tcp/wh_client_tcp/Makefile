@@ -77,6 +77,7 @@ SRC_C += \
             $(WOLFHSM_DIR)/src/wh_client.c \
             $(WOLFHSM_DIR)/src/wh_client_nvm.c \
             $(WOLFHSM_DIR)/src/wh_client_cryptocb.c \
+            $(WOLFHSM_DIR)/src/wh_utils.c \
             $(WOLFHSM_DIR)/src/wh_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_nvm.c \
@@ -88,6 +89,7 @@ SRC_C += $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
 # Demo client code
 SRC_C += $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_nvm.c \
          $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_keystore.c \
+         $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_crypto.c \
          $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_all.c
 
 # APP

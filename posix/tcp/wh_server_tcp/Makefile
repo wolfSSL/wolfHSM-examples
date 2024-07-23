@@ -80,6 +80,7 @@ SRC_C += \
             $(WOLFHSM_DIR)/src/wh_server_keystore.c \
             $(WOLFHSM_DIR)/src/wh_server_counter.c \
             $(WOLFHSM_DIR)/src/wh_nvm.c \
+            $(WOLFHSM_DIR)/src/wh_utils.c \
             $(WOLFHSM_DIR)/src/wh_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_comm.c \
             $(WOLFHSM_DIR)/src/wh_message_nvm.c \

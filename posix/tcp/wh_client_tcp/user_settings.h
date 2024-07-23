@@ -4,6 +4,7 @@
 
 /* Common configuration */
 #define WOLFCRYPT_ONLY
+#define WOLFSSL_KEY_GEN
 //#define BIG_ENDIAN_ORDER
 #define WOLF_CRYPTO_CB
 //#define WOLFSSL_KEY_GEN
@@ -47,8 +48,7 @@
 #define FP_MAX_BITS 4096
 
 /* ECC Options */
-//#define HAVE_ECC
-#define NO_ECC
+#define HAVE_ECC
 #define TFM_ECC256
 #define ECC_SHAMIR
 #define HAVE_SUPPORTED_CURVES
