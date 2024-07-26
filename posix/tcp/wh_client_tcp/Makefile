@@ -55,30 +55,25 @@ LDFLAGS += $(DBGFLAGS)
 #wolfCrypt source files
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
 
+#wolfCrypt test/benchmark source files
+DEF +=   -DWH_DEMO_WCTEST -DWH_DEMO_WCBENCH                 \
+         -DNO_MAIN_DRIVER -DBENCH_EMBEDDED -DNO_FILESYSTEM  \
+         -DWC_USE_DEVID=0x5748534D
+
+SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/test/*.c)
+SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.c)
+
 #wolfSSL source files
 SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
 
 # wolfHSM source files
 SRC_C += $(wildcard $(WOLFHSM_DIR)/src/*.c)
-#SRC_C += \
-            $(WOLFHSM_DIR)/src/wh_client.c \
-            $(WOLFHSM_DIR)/src/wh_client_nvm.c \
-            $(WOLFHSM_DIR)/src/wh_client_cryptocb.c \
-            $(WOLFHSM_DIR)/src/wh_utils.c \
-            $(WOLFHSM_DIR)/src/wh_comm.c \
-            $(WOLFHSM_DIR)/src/wh_message_comm.c \
-            $(WOLFHSM_DIR)/src/wh_message_nvm.c \
-            $(WOLFHSM_DIR)/src/wh_message_customcb.c \
-            $(WOLFHSM_DIR)/src/wh_utils.c
 
 # WolfHSM port\HAL code
 SRC_C += $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
 
 # Demo client code
-SRC_C += $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_nvm.c \
-         $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_keystore.c \
-         $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_crypto.c \
-         $(WOLFHSM_CLIENT_DEMO_DIR)/wh_demo_client_all.c
+SRC_C += $(wildcard $(WOLFHSM_CLIENT_DEMO_DIR)/*.c) 
 
 # APP
 SRC_C += ./src/wh_client_tcp.c

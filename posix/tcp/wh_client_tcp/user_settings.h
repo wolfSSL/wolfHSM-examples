@@ -6,6 +6,9 @@
 #define WOLF_CRYPTO_CB
 #define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
 
+/* Optional if debugging cryptocb's */
+#define DEBUG_CRYPTOCB
+
 /* Temporarily set this to key export function without keygen */
 #define OPENSSL_EXTRA
 
