@@ -33,8 +33,8 @@ LDFLAGS ?= $(ARCHFLAGS)
 # LD: generate map
 #LDFLAGS += -Wl,-Map=$(BUILD_DIR)/$(BIN).map
 
-# Libc for printf
-LIBS = -lc
+# Libc for printf, libm for math
+LIBS = -lc -lm
 
 # Optimization level and place functions / data into separate sections to allow dead code removal
 CFLAGS += -O0 -ffunction-sections -fdata-sections
