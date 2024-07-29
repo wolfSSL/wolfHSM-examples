@@ -22,6 +22,9 @@
 
 /* Include to ensure clock_gettime is declared for benchmark.c */
 #include <time.h>
+/* Include to support strcasecmp with POSIX build */
+#include <strings.h>
+
 
 #if 0
 
