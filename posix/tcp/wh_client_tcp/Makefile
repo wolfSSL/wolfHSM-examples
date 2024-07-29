@@ -27,8 +27,7 @@ ARCHFLAGS ?=
 # Compiler and linker flags
 ASFLAGS ?= $(ARCHFLAGS)
 CFLAGS_EXTRA ?= -Wno-cpp
-#CFLAGS ?= $(ARCHFLAGS) -std=c99 -Wall $(CFLAGS_EXTRA)
-CFLAGS ?= $(ARCHFLAGS) -Wall $(CFLAGS_EXTRA)
+CFLAGS ?= $(ARCHFLAGS) -std=c99 -Wall $(CFLAGS_EXTRA)
 LDFLAGS ?= $(ARCHFLAGS)
 
 # LD: generate map
@@ -59,7 +58,7 @@ SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
 #wolfCrypt test/benchmark source files
 DEF +=   -DWH_DEMO_WCTEST -DWH_DEMO_WCBENCH                 \
          -DNO_MAIN_DRIVER -DBENCH_EMBEDDED -DNO_FILESYSTEM  \
-         -DWC_USE_DEVID=0x5748534D
+         -D_POSIX_C_SOURCE=200809L -DWC_USE_DEVID=0x5748534D
 
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/test/*.c)
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.c)
