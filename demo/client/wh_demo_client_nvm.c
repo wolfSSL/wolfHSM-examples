@@ -19,8 +19,10 @@ int wh_DemoClient_Nvm(whClientContext* clientContext)
 
     int32_t  rc;
     int32_t  serverRc;
-    uint32_t availSize, reclaimSize;
-    whNvmId  availObjects, reclaimObjects;
+    uint32_t availSize;
+    uint32_t reclaimSize;
+    whNvmId  availObjects;
+    whNvmId  reclaimObjects;
 
     whNvmId   objectIds[] = {1, 2, 3};
     uint8_t   labels[][6] = {"label1", "label2", "label3"};
@@ -48,8 +50,8 @@ int wh_DemoClient_Nvm(whClientContext* clientContext)
     for (int i = 0; i < NUM_OBJECTS; i++) {
         /* Add an object */
         rc = wh_Client_NvmAddObject(clientContext, objectIds[i],
-                                    WOLFHSM_NVM_ACCESS_ANY,
-                                    WOLFHSM_NVM_FLAGS_ANY, sizeof(labels[i]),
+                                    WH_NVM_ACCESS_ANY,
+                                    WH_NVM_FLAGS_ANY, sizeof(labels[i]),
                                     labels[i], dataLen, data[i], &serverRc);
         if (rc != 0 || serverRc != 0) {
             printf("Add Object %d failed with error code: %d, server error "

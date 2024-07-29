@@ -129,6 +129,10 @@ int main(int argc, char** argv)
         printf("Failed to initialize NVM: %d\n", rc);
         return rc;
     }
+    /* Initialize crypto library and hardware */
+    wolfCrypt_Init();
+
+    wc_InitRng_ex(crypto->rng, NULL, crypto->devId);
 
     rc = wc_InitRng_ex(crypto->rng, NULL, crypto->devId);
     if (rc != 0) {
