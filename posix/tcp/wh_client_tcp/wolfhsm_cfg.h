@@ -26,7 +26,7 @@
 #define WOLFHSM_CFG_H_
 
 
-/** wolfHSM settings.  Simple overrides to show they work */
+/** wolfHSM settings */
 /* #define WOLFHSM_CFG_NO_CRYPTO */
 #define WOLFHSM_CFG_SHE_EXTENSION
 

@@ -8,6 +8,17 @@
 
 /* Key gen is currently required on the server */
 #define WOLFSSL_KEY_GEN
+#define HAVE_CURVE25519
+#define HAVE_ECC
+#define HAVE_AES
+#define HAVE_AESGCM
+#define HAVE_AES_ECB
+#define WOLFSSL_AES_DIRECT
+#define WOLFSSL_CMAC
+
+/* Include to ensure clock_gettime is declared for benchmark.c */
+#include <time.h>
+
 
 #if 0
 /* Common configuration */
