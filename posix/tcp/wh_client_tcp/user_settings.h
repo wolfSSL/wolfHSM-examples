@@ -1,4 +1,5 @@
-#ifndef USER_SETTINGS_H
+#ifndef USER_SETTINGS_H_
+#define USER_SETTINGS_H_
 
 /* Client wolfSSL settings */
 
