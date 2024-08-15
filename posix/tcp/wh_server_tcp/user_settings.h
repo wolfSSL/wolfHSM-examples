@@ -2,6 +2,8 @@
 #define USER_SETTINGS_H
 /* Server wolfSSL settings */
 
+#define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
+
 /* Common configuration */
 #define WOLFCRYPT_ONLY
 /* #define BIG_ENDIAN_ORDER */
@@ -101,6 +103,8 @@
 
 #define USE_FAST_MATH
 
+/* Random inclusions appropriate for POSIX platforms */
+#define HAVE_STRINGS_H
 
 
 #endif  /*define USER_SETTINGS_H */

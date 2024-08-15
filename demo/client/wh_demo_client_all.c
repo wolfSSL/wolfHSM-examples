@@ -1,11 +1,27 @@
 #include "wh_demo_client_all.h"
 #include "wh_demo_client_nvm.h"
 #include "wh_demo_client_keystore.h"
+#include "wh_demo_client_crypto.h"
+#include "wh_demo_client_wctest.h"
+#include "wh_demo_client_wcbench.h"
 
 int wh_DemoClient_All(whClientContext* clientContext)
 {
     int rc = 0;
 
+    /* wolfCrypt test and benchmark */
+#ifdef WH_DEMO_WCTEST
+    rc = wh_DemoClient_wcTest(clientContext);
+    if (rc != 0) {
+            return rc;
+    }
+#endif
+#ifdef WH_DEMO_WCBENCH
+    rc = wh_DemoClient_wcBench(clientContext);
+    if (rc != 0) {
+            return rc;
+    }
+#endif
     /* NVM demos */
     rc = wh_DemoClient_Nvm(clientContext);
     if (rc != 0) {

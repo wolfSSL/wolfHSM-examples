@@ -14,7 +14,7 @@ int wh_DemoClient_KeystoreBasic(whClientContext* clientContext)
     int      ret;
     uint8_t  key[AES_128_KEY_SIZE] = "0123456789abcdef";
     uint8_t  label[]               = "my secret key";
-    uint16_t keyId                 = WOLFHSM_KEYID_ERASED;
+    uint16_t keyId                 = WH_KEYID_ERASED;
 
     /* Cache the key in the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, label, sizeof(label), key,
@@ -48,7 +48,7 @@ int wh_DemoClient_KeystoreBasic(whClientContext* clientContext)
 int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 {
     int      ret;
-    uint16_t keyId                      = WOLFHSM_KEYID_ERASED;
+    uint16_t keyId                      = WH_KEYID_ERASED;
     uint8_t  key[AES_128_KEY_SIZE]      = "0123456789abcdef";
     uint8_t  label[]                    = "my secret key";
     uint8_t  exportKey[sizeof(key)]     = {0};
@@ -120,14 +120,14 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
 {
     int      ret;
-    Aes      aes;
+    Aes      aes = {0};
     uint8_t  key[AES_128_KEY_SIZE] = "0123456789abcdef";
     uint8_t  iv[AES_IV_SIZE]       = "1234567890abcdef";
     uint8_t  label[]               = "my secret AES key";
     uint8_t  plainText[]           = "This is a test.";
     uint8_t  cipherText[sizeof(plainText)];
     uint8_t  decryptedText[sizeof(plainText)];
-    uint16_t keyId = WOLFHSM_KEYID_ERASED;
+    uint16_t keyId = WH_KEYID_ERASED;
 
     /* Cache the AES key in the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, label, sizeof(label), key,
@@ -156,7 +156,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
      * used at any time, including across server restarts */
 
     /* Initialize AES context to use wolfHSM offload */
-    ret = wc_AesInit(&aes, NULL, WOLFHSM_DEV_ID);
+    ret = wc_AesInit(&aes, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to initialize AES: %d\n", ret);
         return ret;
@@ -211,7 +211,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     /* Though the key is evicted, we can still use it for crypto operations,
      * usage will just require the server to load the key from NVM. The key will
      * be restored in the cache after using it */
-    ret = wc_AesInit(&aes, NULL, WOLFHSM_DEV_ID);
+    ret = wc_AesInit(&aes, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to initialize AES: %d\n", ret);
         return ret;

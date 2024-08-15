@@ -16,7 +16,7 @@
 #include "wh_demo_client_all.h"
 
 /** Local declarations */
-static void* wh_ClientTask(void* cf);
+static int wh_ClientTask(void* cf);
 
 
 enum {
@@ -30,7 +30,7 @@ enum {
 #define WH_SERVER_TCP_PORT 23456
 #define WH_CLIENT_ID 12
 
-static void* wh_ClientTask(void* cf)
+static int wh_ClientTask(void* cf)
 {
     whClientConfig* config = (whClientConfig*)cf;
     int ret = 0;
@@ -44,7 +44,7 @@ static void* wh_ClientTask(void* cf)
     uint16_t rx_resp_len = 0;
 
     if (config == NULL) {
-        return NULL;
+        return -1;
     }
 
     ret = wh_Client_Init(client, config);
@@ -52,7 +52,7 @@ static void* wh_ClientTask(void* cf)
 
     if (ret != 0) {
         perror("Init error:");
-        return NULL;
+        return -1;
     }
     for(counter = 0; counter < REPEAT_COUNT; counter++)
     {
@@ -96,10 +96,10 @@ static void* wh_ClientTask(void* cf)
     }
 
 
-    wh_Client_CommClose(client);
-    ret = wh_Client_Cleanup(client);
+    (void)wh_Client_CommClose(client);
+    (void)wh_Client_Cleanup(client);
     printf("Client disconnected\n");
-    return NULL;
+    return ret;
 }
 
 int main(int argc, char** argv)
@@ -124,7 +124,5 @@ int main(int argc, char** argv)
             .comm = cc_conf,
     }};
 
-    wh_ClientTask(c_conf);
-
-    return 0;
+    return wh_ClientTask(c_conf);
 }

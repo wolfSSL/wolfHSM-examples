@@ -31,8 +31,8 @@ LDFLAGS ?= $(ARCHFLAGS)
 # LD: generate map
 #LDFLAGS += -Wl,-Map=$(BUILD_DIR)/$(BIN).map
 
-# Libc for printf
-LIBS = -lc
+# Libc for printf, libm for math
+LIBS = -lc -lm
 
 # Optimization level and place functions / data into separate sections to allow dead code removal 
 CFLAGS += -O0 -ffunction-sections -fdata-sections 
@@ -50,50 +50,16 @@ LDFLAGS += $(DBGFLAGS)
 # Assembly source files
 SRC_ASM += 
 
-# wolfCrypt source files
-SRC_C += \
-            $(WOLFSSL_DIR)/wolfcrypt/src/wc_port.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/memory.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/misc.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/cryptocb.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/random.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/asn.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/coding.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/wolfmath.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/ecc.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/tfm.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/fe_operations.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/rsa.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/curve25519.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/hash.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/sha256.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/aes.c \
-            $(WOLFSSL_DIR)/wolfcrypt/src/cmac.c
+#wolfCrypt source files
+SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
 
-# WolfHSM source files
-SRC_C += \
-            $(WOLFHSM_DIR)/src/wh_server.c \
-            $(WOLFHSM_DIR)/src/wh_server_customcb.c \
-            $(WOLFHSM_DIR)/src/wh_server_dma.c \
-            $(WOLFHSM_DIR)/src/wh_server_nvm.c \
-            $(WOLFHSM_DIR)/src/wh_server_crypto.c \
-            $(WOLFHSM_DIR)/src/wh_server_keystore.c \
-            $(WOLFHSM_DIR)/src/wh_server_counter.c \
-            $(WOLFHSM_DIR)/src/wh_nvm.c \
-            $(WOLFHSM_DIR)/src/wh_utils.c \
-            $(WOLFHSM_DIR)/src/wh_comm.c \
-            $(WOLFHSM_DIR)/src/wh_message_comm.c \
-            $(WOLFHSM_DIR)/src/wh_message_nvm.c \
-            $(WOLFHSM_DIR)/src/wh_message_customcb.c
+# wolfHSM source files
+SRC_C += $(wildcard $(WOLFHSM_DIR)/src/*.c)
 
 # WolfHSM port\HAL code
-SRC_C += \
-            $(WOLFHSM_DIR)/src/wh_nvm_flash.c \
-            $(WOLFHSM_DIR)/src/wh_flash_unit.c \
-            $(WOLFHSM_DIR)/src/wh_flash_ramsim.c \
-            $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
+SRC_C +=    $(WOLFHSM_DIR)/port/posix/posix_transport_tcp.c
 
-# APP
+# Server App
 SRC_C += ./src/wh_server_tcp.c 
 
 

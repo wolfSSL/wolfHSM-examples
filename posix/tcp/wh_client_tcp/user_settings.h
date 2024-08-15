@@ -1,21 +1,46 @@
-#ifndef USER_SETTINGS_H
+#ifndef USER_SETTINGS_H_
+#define USER_SETTINGS_H_
 
 /* Client wolfSSL settings */
+
+/* wolfHSM Required */
+#define WOLF_CRYPTO_CB
+#define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
+
+/* Optional if debugging cryptocb's */
+#define DEBUG_CRYPTOCB
+#define DEBUG_CRYPTOCB_VERBOSE
+
+/* Temporarily set this to key export function  */
+#define WOLFSSL_KEY_GEN
+#define HAVE_CURVE25519
+#define HAVE_ECC
+#define HAVE_AES
+#define HAVE_AESGCM
+#define WOLFSSL_AES_DIRECT
+#define WOLFSSL_CMAC
+
+/* Include to ensure clock_gettime is declared for benchmark.c */
+#include <time.h>
+/* Include to support strcasecmp with POSIX build */
+#include <strings.h>
+
+
+#if 0
+
+/* Math library selection.  */
+#define USE_FAST_MATH
 
 /* Common configuration */
 #define WOLFCRYPT_ONLY
 #define WOLFSSL_KEY_GEN
 //#define BIG_ENDIAN_ORDER
-#define WOLF_CRYPTO_CB
 //#define WOLFSSL_KEY_GEN
 #define SINGLE_THREADED
 #define WC_NO_ASYNC_THREADING
 #define WOLFSSL_USE_ALIGN
 #define HAVE_WC_INTROSPECTION
 #define WOLFSSL_IGNORE_FILE_WARN
-
-#define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
-
 #define WOLFSSL_NO_MALLOC
 
 /* Hardening options */
@@ -41,7 +66,6 @@
 #define NO_OLD_MD5_NAME
 
 /* RSA Options */
-//#define NO_RSA
 #define HAVE_RSA
 #define WC_RSA_PSS
 #define WOLFSSL_PSS_LONG_SALT
@@ -107,8 +131,8 @@
 /* Curve25519 Options */
 #define HAVE_CURVE25519
 
-/* Math library selection.  Update makefile list if changed */
-#define USE_FAST_MATH
+#endif
+
 
 
 #endif
