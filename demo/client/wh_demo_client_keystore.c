@@ -120,7 +120,7 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
 {
     int      ret;
-    Aes      aes;
+    Aes      aes = {0};
     uint8_t  key[AES_128_KEY_SIZE] = "0123456789abcdef";
     uint8_t  iv[AES_IV_SIZE]       = "1234567890abcdef";
     uint8_t  label[]               = "my secret AES key";
