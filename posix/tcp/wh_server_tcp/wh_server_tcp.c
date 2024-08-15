@@ -17,7 +17,7 @@
 #include "port/posix/posix_transport_tcp.h"
 
 /** Local declarations */
-static void* wh_ServerTask(void* cf);
+static int wh_ServerTask(void* cf);
 
 enum {
 	ONE_MS = 1000,
@@ -28,7 +28,7 @@ enum {
 #define WH_SERVER_TCP_PORT 23456
 #define WH_SERVER_ID 56
 
-static void* wh_ServerTask(void* cf)
+static int wh_ServerTask(void* cf)
 {
     whServerContext server[1];
     whServerConfig* config = (whServerConfig*)cf;
@@ -37,7 +37,7 @@ static void* wh_ServerTask(void* cf)
     whCommConnected am_connected = WH_COMM_CONNECTED;
 
     if (config == NULL) {
-        return NULL;
+        return -1;
     }
 
     ret = wh_Server_Init(server, config);
@@ -61,10 +61,14 @@ static void* wh_ServerTask(void* cf)
             }
             wh_Server_GetConnected(server, &am_connected);
         }
-        ret = wh_Server_Cleanup(server);
+        if (ret != 0) {
+            (void)wh_Server_Cleanup(server);
+        } else {
+            ret = wh_Server_Cleanup(server);
+        }
         printf("Server disconnected\n");
     }
-    return NULL;
+    return ret;
 }
 
 int main(int argc, char** argv)
@@ -140,7 +144,7 @@ int main(int argc, char** argv)
         return rc;
     }
 
-    wh_ServerTask(s_conf);
+    rc = wh_ServerTask(s_conf);
 
-    return 0;
+    return rc;
 }
