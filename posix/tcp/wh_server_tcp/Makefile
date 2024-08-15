@@ -53,9 +53,6 @@ SRC_ASM +=
 #wolfCrypt source files
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
 
-#wolfSSL source files
-SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
-
 # wolfHSM source files
 SRC_C += $(wildcard $(WOLFHSM_DIR)/src/*.c)
 

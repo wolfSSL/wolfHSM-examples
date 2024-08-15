@@ -2,27 +2,14 @@
 #define USER_SETTINGS_H
 /* Server wolfSSL settings */
 
-/* wolfHSM Required */
-#define WOLF_CRYPTO_CB
 #define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
 
-/* Key gen is currently required on the server */
-#define WOLFSSL_KEY_GEN
-#define HAVE_CURVE25519
-#define HAVE_ECC
-#define HAVE_AES
-#define HAVE_AESGCM
-#define HAVE_AES_ECB
-#define WOLFSSL_AES_DIRECT
-#define WOLFSSL_CMAC
-
-
-#if 0
 /* Common configuration */
 #define WOLFCRYPT_ONLY
 /* #define BIG_ENDIAN_ORDER */
-
-
+#define WOLF_CRYPTO_CB
+/* Key gen is currently required on the server */
+#define WOLFSSL_KEY_GEN
 #define SINGLE_THREADED
 #define WC_NO_ASYNC_THREADING
 #define WOLFSSL_USE_ALIGN
@@ -116,7 +103,7 @@
 
 #define USE_FAST_MATH
 
-#endif
+
 
 #endif  /*define USER_SETTINGS_H */
 
