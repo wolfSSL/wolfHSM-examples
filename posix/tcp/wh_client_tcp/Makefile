@@ -56,8 +56,7 @@ LDFLAGS += $(DBGFLAGS)
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
 
 #wolfCrypt test/benchmark source files
-DEF +=   -DWH_DEMO_WCTEST -DWH_DEMO_WCBENCH                 \
-         -DNO_MAIN_DRIVER -DBENCH_EMBEDDED -DNO_FILESYSTEM  \
+DEF +=   -DNO_MAIN_DRIVER -DBENCH_EMBEDDED -DNO_FILESYSTEM  \
          -D_POSIX_C_SOURCE=200809L -DWC_USE_DEVID=0x5748534D
 
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/test/*.c)
