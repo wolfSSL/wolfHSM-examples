@@ -103,6 +103,8 @@
 
 #define USE_FAST_MATH
 
+/* Random inclusions appropriate for POSIX platforms */
+#define HAVE_STRINGS_H
 
 
 #endif  /*define USER_SETTINGS_H */
