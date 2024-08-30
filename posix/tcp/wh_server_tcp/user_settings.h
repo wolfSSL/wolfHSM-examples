@@ -45,7 +45,7 @@
 #define HAVE_RSA
 #define WC_RSA_PSS
 #define WOLFSSL_PSS_LONG_SALT
-#define FP_MAX_BITS 4096
+#define FP_MAX_BITS 8192
 
 /* ECC Options */
 #define HAVE_ECC
