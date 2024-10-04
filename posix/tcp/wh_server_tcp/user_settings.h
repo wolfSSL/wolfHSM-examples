@@ -2,12 +2,15 @@
 #define USER_SETTINGS_H
 /* Server wolfSSL settings */
 
+/* wolfHSM Required */
+#define WOLF_CRYPTO_CB
 #define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
 
-/* Common configuration */
 #define WOLFCRYPT_ONLY
-/* #define BIG_ENDIAN_ORDER */
-#define WOLF_CRYPTO_CB
+
+/* #define DEBUG_CRYPTOCB */
+/* #define DEBUG_CRYPTOCB_VERBOSE */
+
 /* Key gen is currently required on the server */
 #define WOLFSSL_KEY_GEN
 #define SINGLE_THREADED
@@ -56,56 +59,10 @@
 /* Curve25519 Options */
 #define HAVE_CURVE25519
 
-/* DH and DHE Options */
-#define HAVE_DH_DEFAULT_PARAMS
-#define HAVE_FFDHE_2048
-
-/* AES Options */
-#define HAVE_AES
 #define HAVE_AESGCM
-#define GCM_TABLE_4BIT
-#define WOLFSSL_AES_DIRECT
 #define HAVE_AES_ECB
+#define WOLFSSL_AES_DIRECT
 #define WOLFSSL_CMAC
-
-/* SHA Options */
-#define NO_SHA
-#define HAVE_SHA256
-
-/* Composite features */
-#define HAVE_HKDF
-#define HAVE_HASHDRBG
-
-/* Remove unneeded crypto */
-#define NO_DSA
-#define NO_RC4
-#define NO_PSK
-#define NO_MD4
-#define NO_MD5
-#define NO_DES3
-#define WOLFSSL_NO_SHAKE128
-#define WOLFSSL_NO_SHAKE256
-#define NO_PWDBASED
-
-/* Disable DH for now */
-#define NO_DH
-
-/* Cert processing options */
-#define WOLFSSL_ASN_TEMPLATE
-#define WOLFSSL_BASE64_ENCODE
-
-/* TLS features that are not used */
-/* TODO: Check to see if these can be removed */
-#define HAVE_TLS_EXTENSIONS
-#define HAVE_ENCRYPT_THEN_MAC
-
-/* Math library selection. Move to target */
-
-#define USE_FAST_MATH
-
-/* Random inclusions appropriate for POSIX platforms */
-#define HAVE_STRINGS_H
-
 
 #endif  /*define USER_SETTINGS_H */
 

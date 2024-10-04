@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 #include "wolfhsm/wh_error.h"
 #include "wolfhsm/wh_comm.h"
@@ -28,7 +27,7 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
                          int clientId);
 
 enum {
-    ONE_MS         = 1000,
+    ONE_MS = 1,
     FLASH_RAM_SIZE = 1024 * 1024,
 };
 
@@ -277,6 +276,17 @@ int main(int argc, char** argv)
     }
 
     rc = wh_ServerTask(s_conf, keyFilePath, keyId, clientId);
+
+    rc = wc_FreeRng(crypto->rng);
+    if (rc != 0) {
+        printf("Failed to wc_FreeRng: %d\n", rc);
+        return rc;
+    }
+    rc = wolfCrypt_Cleanup();
+    if (rc != 0) {
+        printf("Failed to wolfCrypt_Cleanup: %d\n", rc);
+        return rc;
+    }
 
     return rc;
 }

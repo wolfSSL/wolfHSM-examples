@@ -29,7 +29,6 @@
 /** wolfHSM settings */
 /* #define WOLFHSM_CFG_NO_CRYPTO */
 #define WOLFHSM_CFG_SHE_EXTENSION
-
 #define WOLFHSM_CFG_COMM_DATA_LEN 1280
 
 #endif /* WOLFHSM_CFG_H_ */

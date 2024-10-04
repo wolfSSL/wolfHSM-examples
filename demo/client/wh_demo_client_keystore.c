@@ -1,20 +1,24 @@
-#include "wh_demo_client_keystore.h"
-
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "wolfhsm/wh_client.h"
+#include "wolfhsm/wh_client_crypto.h"
+#include "wolfhsm/wh_error.h"
+
 #include "wolfssl/wolfcrypt/settings.h"
 #include "wolfssl/wolfcrypt/aes.h"
 #include "wolfssl/wolfcrypt/random.h"
-#include "wolfhsm/wh_client.h"
-#include "wolfhsm/wh_error.h"
+
+#include "wh_demo_client_keystore.h"
 
 
 int wh_DemoClient_KeystoreBasic(whClientContext* clientContext)
 {
     int      ret;
-    uint8_t  key[AES_128_KEY_SIZE] = "0123456789abcdef";
-    uint8_t  label[]               = "my secret key";
-    uint16_t keyId                 = WH_KEYID_ERASED;
+    uint8_t  key[]                  = "0123456789abcdef";
+    uint8_t  label[]                = "my secret key";
+    uint16_t keyId                  = WH_KEYID_ERASED;
 
     /* Cache the key in the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, label, sizeof(label), key,
@@ -49,7 +53,7 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 {
     int      ret;
     uint16_t keyId                      = WH_KEYID_ERASED;
-    uint8_t  key[AES_128_KEY_SIZE]      = "0123456789abcdef";
+    uint8_t  key[               ]       = "0123456789abcdef";
     uint8_t  label[]                    = "my secret key";
     uint8_t  exportKey[sizeof(key)]     = {0};
     uint8_t  exportLabel[sizeof(label)] = {0};
@@ -116,7 +120,7 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
     return WH_ERROR_OK;
 }
 
-
+#ifndef NO_AES
 int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
 {
     int      ret;
@@ -163,7 +167,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
 
     /* set AES context to use the cached key */
-    ret = wh_Client_SetKeyIdAes(&aes, keyId);
+    ret = wh_Client_AesSetKeyId(&aes, keyId);
     if (ret != 0) {
         printf("Failed to set key: %d\n", ret);
         return ret;
@@ -216,7 +220,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
         printf("Failed to initialize AES: %d\n", ret);
         return ret;
     }
-    ret = wh_Client_SetKeyIdAes(&aes, keyId);
+    ret = wh_Client_AesSetKeyId(&aes, keyId);
     if (ret != 0) {
         printf("Failed to set key: %d\n", ret);
         return ret;
@@ -252,7 +256,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
 
     /* Key was erased, so should be unusable */
-    (void)wh_Client_SetKeyIdAes(&aes, keyId);
+    (void)wh_Client_AesSetKeyId(&aes, keyId);
     ret = wc_AesCbcEncrypt(&aes, cipherText, plainText, sizeof(plainText));
     if (ret != WH_ERROR_NOTFOUND) {
         printf("Key should not be found: instead got %d\n", ret);
@@ -264,3 +268,5 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
 
     return WH_ERROR_OK;
 }
+#endif /* !NO_AES */
+
