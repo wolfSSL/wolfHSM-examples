@@ -35,7 +35,7 @@ LDFLAGS ?= $(ARCHFLAGS)
 LIBS = -lc -lm
 
 # Optimization level and place functions / data into separate sections to allow dead code removal 
-CFLAGS += -O0 -ffunction-sections -fdata-sections 
+CFLAGS += -O3 -ffunction-sections -fdata-sections 
 #-fstrict-volatile-bitfields #-fno-builtin
 
 # Remove unused sections and link time optimizations

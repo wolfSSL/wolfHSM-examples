@@ -48,6 +48,12 @@ static int wh_ClientTask(void* cf)
     }
 
     ret = wh_Client_Init(client, config);
+
+    /*
+    extern int runtest(void);
+    runtest();
+    return(0);
+    */
     printf("Client connecting to server...\n");
 
     if (ret != 0) {

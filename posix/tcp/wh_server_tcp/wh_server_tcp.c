@@ -20,7 +20,7 @@
 static int wh_ServerTask(void* cf);
 
 enum {
-	ONE_MS = 1000,
+    ONE_MS = 1,
     FLASH_RAM_SIZE = 1024 * 1024,
 };
 
@@ -145,6 +145,17 @@ int main(int argc, char** argv)
     }
 
     rc = wh_ServerTask(s_conf);
+
+    rc = wc_FreeRng(crypto->rng);
+    if (rc != 0) {
+        printf("Failed to wc_FreeRng: %d\n", rc);
+        return rc;
+    }
+    rc = wolfCrypt_Cleanup();
+    if (rc != 0) {
+        printf("Failed to wolfCrypt_Cleanup: %d\n", rc);
+        return rc;
+    }
 
     return rc;
 }

@@ -37,7 +37,7 @@ LDFLAGS ?= $(ARCHFLAGS)
 LIBS = -lc -lm
 
 # Optimization level and place functions / data into separate sections to allow dead code removal
-CFLAGS += -O0 -ffunction-sections -fdata-sections
+CFLAGS += -O3 -ffunction-sections -fdata-sections
 #-fstrict-volatile-bitfields #-fno-builtin
 
 # Remove unused sections and link time optimizations
@@ -63,7 +63,7 @@ SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/test/*.c)
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.c)
 
 #wolfSSL source files
-SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
+#SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
 
 # wolfHSM source files
 SRC_C += $(wildcard $(WOLFHSM_DIR)/src/*.c)
