@@ -49,8 +49,7 @@
 int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
 {
     int ret = 0;
-    int needEvict = 0;
-    whKeyId keyId = WH_KEYID_ERASED;
+    int encSz = 0;
     const char plainString[] = "The quick brown fox jumps over the lazy dog.";
     byte plainText[256];
     byte cipherText[256];
@@ -80,23 +79,24 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
         printf("Failed to wc_MakeRsaKey %d\n", ret);
         goto exit;
     }
-    needEvict = 1;
 
     /* encrypt the plaintext */
-    ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
+    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
         sizeof(cipherText), rsa, rng);
     if (ret < 0) {
         printf("Failed to wc_RsaPublicEncrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* decrypt the ciphertext */
-    ret = wc_RsaPrivateDecrypt(cipherText, ret, plainText, sizeof(plainText),
+    ret = wc_RsaPrivateDecrypt(cipherText, encSz, plainText, sizeof(plainText),
         rsa);
     if (ret < 0) {
         printf("Failed to wc_RsaPrivateDecrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* verify the decryption output */
     if (memcmp(plainText, plainString, sizeof(plainString)) != 0) {
@@ -105,25 +105,16 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
     }
     else
         printf("RSA Decryption matches original plaintext\n");
+
 exit:
     (void)wc_FreeRng(rng);
-    if (needEvict) {
-        ret = wh_Client_RsaGetKeyId(rsa, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
-        }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
     return ret;
 }
 
 int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 {
     int ret = 0;
+    int encSz = 0;
     int keyFd;
     int keySz;
     int needEvict = 0;
@@ -187,20 +178,22 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
     }
 
     /* encrypt the plaintext */
-    ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
+    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
         sizeof(cipherText), rsa, rng);
     if (ret < 0) {
         printf("Failed to wc_RsaPublicEncrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* decrypt the ciphertext */
-    ret = wc_RsaPrivateDecrypt(cipherText, ret, plainText, sizeof(plainText),
+    ret = wc_RsaPrivateDecrypt(cipherText, encSz, plainText, sizeof(plainText),
         rsa);
     if (ret < 0) {
         printf("Failed to wc_RsaPrivateDecrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* verify the decryption output */
     if (memcmp(plainText, plainString, sizeof(plainString)) != 0) {
