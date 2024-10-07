@@ -188,6 +188,13 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
     printf("Encryption successful\n");
 
+    /* Re-set the IV, as the CBC operation will overwrite it */
+    ret = wc_AesSetIV(&aes, iv);
+    if (ret != 0) {
+        printf("Failed to set IV: %d\n", ret);
+        return ret;
+    }
+
     /* Decrypt the ciphertext */
     ret = wc_AesCbcDecrypt(&aes, decryptedText, cipherText, sizeof(cipherText));
     if (ret != 0) {
@@ -202,6 +209,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
     else {
         printf("Decryption does not match original plaintext\n");
+        return -1;
     }
 
     /* Evict the key from the HSM */
@@ -235,6 +243,11 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
         printf("Failed to encrypt: %d\n", ret);
         return ret;
     }
+    ret = wc_AesSetIV(&aes, iv);
+    if (ret != 0) {
+        printf("Failed to set IV: %d\n", ret);
+        return ret;
+    }
     ret = wc_AesCbcDecrypt(&aes, decryptedText, cipherText, sizeof(cipherText));
     if (ret != 0) {
         printf("Failed to decrypt: %d\n", ret);
@@ -245,6 +258,7 @@ int wh_DemoClient_KeystoreAes(whClientContext* clientContext)
     }
     else {
         printf("Decryption does not match original plaintext\n");
+        return -1;
     }
 
     /* Erase the key from the HSM key storage. Its keyId will no longer be
