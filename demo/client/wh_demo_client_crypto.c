@@ -218,10 +218,7 @@ exit:
 int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 {
     int ret = 0;
-    int needEvictPriv = 0;
-    int needEvictPub = 0;
     word32 outLen;
-    whKeyId keyId = WH_KEYID_ERASED;
     uint8_t sharedOne[CURVE25519_KEYSIZE];
     uint8_t sharedTwo[CURVE25519_KEYSIZE];
     curve25519_key curve25519PrivateKey[1];
@@ -255,14 +252,12 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
         goto exit;
     }
-    needEvictPriv = 1;
 
     ret = wc_curve25519_make_key(rng, CURVE25519_KEYSIZE, curve25519PublicKey);
     if (ret != 0) {
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
         goto exit;
     }
-    needEvictPub = 1;
 
     /* generate shared secrets from both perspectives */
     outLen = sizeof(sharedOne);
@@ -295,28 +290,6 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
     }
 exit:
     (void)wc_FreeRng(rng);
-    if (needEvictPriv) {
-        ret = wh_Client_Curve25519GetKeyId(curve25519PrivateKey, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
-        }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
-    if (needEvictPub) {
-        ret = wh_Client_Curve25519GetKeyId(curve25519PublicKey, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
-        }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
     return ret;
 }
 
@@ -375,7 +348,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     /* set the assigned keyId */
     ret = wh_Client_Curve25519SetKeyId(curve25519PrivateKey, keyIdPrivBob);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -413,7 +386,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     /* set the assigned keyId */
     ret = wh_Client_Curve25519SetKeyId(curve25519PublicKey, keyIdPubAlice);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -464,7 +437,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     /* set the assigned keyId */
     ret = wh_Client_Curve25519SetKeyId(curve25519PrivateKey, keyIdPrivAlice);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -502,7 +475,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     /* set the assigned keyId */
     ret = wh_Client_Curve25519SetKeyId(curve25519PublicKey, keyIdPubBob);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
