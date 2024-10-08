@@ -6,19 +6,25 @@
 /* wolfHSM Required */
 #define WOLF_CRYPTO_CB
 #define HAVE_ANONYMOUS_INLINE_AGGREGATES 1
+#define WOLFCRYPT_ONLY
 
 /* Optional if debugging cryptocb's */
-#define DEBUG_CRYPTOCB
-#define DEBUG_CRYPTOCB_VERBOSE
+/*#define DEBUG_CRYPTOCB */
+/*#define DEBUG_CRYPTOCB_VERBOSE */
 
 /* Temporarily set this to key export function  */
 #define WOLFSSL_KEY_GEN
-#define HAVE_CURVE25519
-#define HAVE_ECC
-#define HAVE_AES
+
+#define HAVE_AES_CBC
 #define HAVE_AESGCM
 #define WOLFSSL_AES_DIRECT
 #define WOLFSSL_CMAC
+
+/* Curve25519 Options */
+#define HAVE_CURVE25519
+
+
+
 
 /* Include to ensure clock_gettime is declared for benchmark.c */
 #include <time.h>
@@ -27,9 +33,17 @@
 
 
 #if 0
+#define WOLFSSL_AES_DIRECT
+#define WOLFSSL_CMAC
+
+#define HAVE_ECC
+#define HAVE_ECC_ENCRYPT
+#define HAVE_CURVE25519
+
+#define HAVE_HKDF
+
 
 /* Math library selection.  */
-#define USE_FAST_MATH
 
 /* Common configuration */
 #define WOLFCRYPT_ONLY
@@ -77,8 +91,6 @@
 #define ECC_SHAMIR
 #define HAVE_SUPPORTED_CURVES
 
-/* Curve25519 Options */
-#define HAVE_CURVE25519
 
 /* DH and DHE Options */
 #define HAVE_DH_DEFAULT_PARAMS

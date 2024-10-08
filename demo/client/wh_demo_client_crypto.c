@@ -11,6 +11,7 @@
 
 #include "wolfhsm/wh_common.h"
 #include "wolfhsm/wh_client.h"
+#include "wolfhsm/wh_client_crypto.h"
 #include "wolfhsm/wh_error.h"
 
 #include "user_settings.h"
@@ -26,7 +27,7 @@
 #include "wolfssl/wolfcrypt/rsa.h"
 #endif
 
-#if !defined(NO_ECC) && defined(HAVE_ECC)
+#if defined(HAVE_ECC)
 #include "wolfssl/wolfcrypt/ecc.h"
 #endif
 
@@ -34,7 +35,7 @@
 #include "wolfssl/wolfcrypt/curve25519.h"
 #endif
 
-#if !defined(NO_AES) && defined(HAVE_AES)
+#if !defined(NO_AES)
 #include "wolfssl/wolfcrypt/aes.h"
 #endif
 
@@ -48,8 +49,7 @@
 int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
 {
     int ret = 0;
-    int needEvict = 0;
-    whKeyId keyId = WH_KEYID_ERASED;
+    int encSz = 0;
     const char plainString[] = "The quick brown fox jumps over the lazy dog.";
     byte plainText[256];
     byte cipherText[256];
@@ -79,23 +79,24 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
         printf("Failed to wc_MakeRsaKey %d\n", ret);
         goto exit;
     }
-    needEvict = 1;
 
     /* encrypt the plaintext */
-    ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
+    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
         sizeof(cipherText), rsa, rng);
     if (ret < 0) {
         printf("Failed to wc_RsaPublicEncrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* decrypt the ciphertext */
-    ret = wc_RsaPrivateDecrypt(cipherText, ret, plainText, sizeof(plainText),
+    ret = wc_RsaPrivateDecrypt(cipherText, encSz, plainText, sizeof(plainText),
         rsa);
     if (ret < 0) {
         printf("Failed to wc_RsaPrivateDecrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* verify the decryption output */
     if (memcmp(plainText, plainString, sizeof(plainString)) != 0) {
@@ -104,25 +105,16 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
     }
     else
         printf("RSA Decryption matches original plaintext\n");
+
 exit:
     (void)wc_FreeRng(rng);
-    if (needEvict) {
-        ret = wh_Client_GetKeyIdRsa(rsa, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
-        }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
     return ret;
 }
 
 int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 {
     int ret = 0;
+    int encSz = 0;
     int keyFd;
     int keySz;
     int needEvict = 0;
@@ -179,27 +171,29 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdRsa(rsa, keyId);
+    ret = wh_Client_RsaSetKeyId(rsa, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
         goto exit;
     }
 
     /* encrypt the plaintext */
-    ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
+    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
         sizeof(cipherText), rsa, rng);
     if (ret < 0) {
         printf("Failed to wc_RsaPublicEncrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* decrypt the ciphertext */
-    ret = wc_RsaPrivateDecrypt(cipherText, ret, plainText, sizeof(plainText),
+    ret = wc_RsaPrivateDecrypt(cipherText, encSz, plainText, sizeof(plainText),
         rsa);
     if (ret < 0) {
         printf("Failed to wc_RsaPrivateDecrypt %d\n", ret);
         goto exit;
     }
+    ret = 0;
 
     /* verify the decryption output */
     if (memcmp(plainText, plainString, sizeof(plainString)) != 0) {
@@ -224,10 +218,7 @@ exit:
 int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 {
     int ret = 0;
-    int needEvictPriv = 0;
-    int needEvictPub = 0;
     word32 outLen;
-    whKeyId keyId = WH_KEYID_ERASED;
     uint8_t sharedOne[CURVE25519_KEYSIZE];
     uint8_t sharedTwo[CURVE25519_KEYSIZE];
     curve25519_key curve25519PrivateKey[1];
@@ -261,14 +252,12 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
         goto exit;
     }
-    needEvictPriv = 1;
 
     ret = wc_curve25519_make_key(rng, CURVE25519_KEYSIZE, curve25519PublicKey);
     if (ret != 0) {
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
         goto exit;
     }
-    needEvictPub = 1;
 
     /* generate shared secrets from both perspectives */
     outLen = sizeof(sharedOne);
@@ -301,28 +290,6 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
     }
 exit:
     (void)wc_FreeRng(rng);
-    if (needEvictPriv) {
-        ret = wh_Client_GetKeyIdCurve25519(curve25519PrivateKey, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
-        }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
-    if (needEvictPub) {
-        ret = wh_Client_GetKeyIdCurve25519(curve25519PublicKey, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
-        }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
     return ret;
 }
 
@@ -379,9 +346,9 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PrivateKey, keyIdPrivBob);
+    ret = wh_Client_Curve25519SetKeyId(curve25519PrivateKey, keyIdPrivBob);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -417,9 +384,9 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PublicKey, keyIdPubAlice);
+    ret = wh_Client_Curve25519SetKeyId(curve25519PublicKey, keyIdPubAlice);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -468,9 +435,9 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PrivateKey, keyIdPrivAlice);
+    ret = wh_Client_Curve25519SetKeyId(curve25519PrivateKey, keyIdPrivAlice);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -506,9 +473,9 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdCurve25519(curve25519PublicKey, keyIdPubBob);
+    ret = wh_Client_Curve25519SetKeyId(curve25519PublicKey, keyIdPubBob);
     if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdRsa %d\n", ret);
+        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
@@ -562,7 +529,7 @@ exit:
 }
 #endif /* HAVE_CURVE25519 */
 
-#if !defined(NO_ECC) && defined(HAVE_ECC)
+#if defined(HAVE_ECC)
 int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1005,9 +972,9 @@ exit:
     }
     return ret;
 }
-#endif /* !NO_ECC && HAVE_ECC */
+#endif /* HAVE_ECC */
 
-#if !defined(NO_AES) && defined(HAVE_AES)
+#if !defined(NO_AES) && defined(HAVE_AES_CBC)
 int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1097,7 +1064,7 @@ int wh_DemoClient_CryptoAesCbcImport(whClientContext* clientContext)
     needEvict = 1;
 
     /* set the keyId on the struct */
-    ret = wh_Client_SetKeyIdAes(aes, keyId);
+    ret = wh_Client_AesSetKeyId(aes, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
         goto exit;
@@ -1134,9 +1101,9 @@ exit:
     }
     return ret;
 }
-#endif /* !NO_AES && HAVE_AES */
+#endif /* !NO_AES && HAVE_AES_CBC*/
 
-#if !defined(NO_AES) && defined(HAVE_AES) && defined(HAVE_AESGCM)
+#if !defined(NO_AES) && defined(HAVE_AESGCM)
 int wh_DemoClient_CryptoAesGcm(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1224,7 +1191,7 @@ int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
     needEvict = 1;
 
     /* set the keyId on the struct */
-    ret = wh_Client_SetKeyIdAes(aes, keyId);
+    ret = wh_Client_AesSetKeyId(aes, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
         goto exit;
@@ -1270,9 +1237,9 @@ exit:
     }
     return ret;
 }
-#endif /* !NOAES && HAVE_AES && HAVE_ASEGCM */
+#endif /* !NOAES && HAVE_ASEGCM */
 
-#ifdef WOLFSSL_CMAC
+#if defined(WOLFSSL_CMAC) && !defined(NO_AES)
 int wh_DemoClient_CryptoCmac(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1347,7 +1314,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
     }
 
     /* set the keyId on the struct */
-    ret = wh_Client_SetKeyIdCmac(cmac, keyId);
+    ret = wh_Client_CmacSetKeyId(cmac, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
         goto exit;
@@ -1377,7 +1344,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
     }
 
     /* set the keyId on the struct */
-    ret = wh_Client_SetKeyIdCmac(cmac, keyId);
+    ret = wh_Client_CmacSetKeyId(cmac, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
         goto exit;
@@ -1385,7 +1352,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 
     /* verify the cmac tag using the special HSM oneshot function
      * wh_Client_AesCmacVerify which is required for pre cached keys */
-    ret = wh_Client_AesCmacVerify(cmac, tag, sizeof(tag), (byte*)message,
+    ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
         strlen(message), keyId, NULL);
     if (ret != 0) {
         printf("CMAC hash and verify failed with imported key %d\n", ret);
@@ -1426,7 +1393,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     }
 
     /* set the keyId on the struct */
-    ret = wh_Client_SetKeyIdCmac(cmac, keyId);
+    ret = wh_Client_CmacSetKeyId(cmac, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
         goto exit;
@@ -1435,7 +1402,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     /* generate the cmac tag using the special HSM wh_Client_AesCmacGenerate
      * function which is required for pre cached keys */
     outLen = sizeof(tag);
-    ret = wh_Client_AesCmacGenerate(cmac, tag, &outLen, (byte*)message,
+    ret = wh_Client_CmacAesGenerate(cmac, tag, &outLen, (byte*)message,
         sizeof(message), keyId, NULL);
     if (ret != 0) {
         printf("Failed to wh_Client_AesCmacGenerate %d\n", ret);
@@ -1452,7 +1419,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     }
 
     /* set the keyId on the struct */
-    ret = wh_Client_SetKeyIdCmac(cmac, keyId);
+    ret = wh_Client_CmacSetKeyId(cmac, keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdAes %d\n", ret);
         goto exit;
@@ -1460,7 +1427,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
 
     /* verify the cmac tag using the special HSM oneshot function
      * wh_Client_AesCmacVerify which is required for pre cached keys */
-    ret = wh_Client_AesCmacVerify(cmac, tag, sizeof(tag), (byte*)message,
+    ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
         sizeof(message), keyId, NULL);
     if (ret != 0) {
         printf("CMAC hash and verify oneshot failed with imported key %d\n", ret);
@@ -1472,5 +1439,5 @@ exit:
     (void)wc_CmacFree(cmac);
     return ret;
 }
-#endif /* WOLFSSL_CMAC */
+#endif /* WOLFSSL_CMAC && !NO_AES */
 
