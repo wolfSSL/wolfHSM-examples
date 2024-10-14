@@ -106,7 +106,7 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
     whServerContext server[1];
     whServerConfig* config            = (whServerConfig*)cf;
     int             ret               = 0;
-    whCommConnected am_connected      = WH_COMM_DISCONNECTED;
+    whCommConnected last_state        = WH_COMM_DISCONNECTED;
     whKeyId         loadedKeyId;
 
     if (config == NULL) {
@@ -144,16 +144,18 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
                     wh_Server_GetConnected(server, &current_state);
                 if (get_conn_result == WH_ERROR_OK) {
                     if (current_state == WH_COMM_CONNECTED &&
-                        am_connected == WH_COMM_DISCONNECTED) {
+                        last_state == WH_COMM_DISCONNECTED) {
                         printf("Server connected\n");
-                        am_connected = WH_COMM_CONNECTED;
+                        last_state = WH_COMM_CONNECTED;
                     }
                     else if (current_state == WH_COMM_DISCONNECTED &&
-                             am_connected == WH_COMM_CONNECTED) {
+                             last_state == WH_COMM_CONNECTED) {
                         printf("Server disconnected\n");
-                        am_connected = WH_COMM_DISCONNECTED;
+                        last_state = WH_COMM_DISCONNECTED;
 
-                        /* Cleanup the server */
+                        /* POSIX TCP transport requires server to be
+                         * re-initialized in order to reconnect */
+
                         (void)wh_Server_Cleanup(server);
 
                         /* Reinitialize the server */
@@ -163,11 +165,14 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
                             break;
                         }
 
+                        /* Reload keys into cache if file path was provided */
                         if (keyFilePath != NULL) {
-                            ret = loadAndStoreKeys(server, &loadedKeyId, keyFilePath, keyId,
-                               clientId);
+                            ret =
+                                loadAndStoreKeys(server, &loadedKeyId,
+                                                 keyFilePath, keyId, clientId);
                             if (ret != 0) {
-                                printf("server failed to load key, ret=%d\n", ret);
+                                printf("server failed to load key, ret=%d\n",
+                                       ret);
                                 break;
                             }
                         }
