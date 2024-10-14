@@ -99,14 +99,14 @@ static int loadAndStoreKeys(whServerContext* server, whKeyId* outKeyId,
     return ret;
 }
 
+
 static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
                          int clientId)
 {
     whServerContext server[1];
     whServerConfig* config            = (whServerConfig*)cf;
     int             ret               = 0;
-    int             connectionMessage = 0;
-    whCommConnected am_connected      = WH_COMM_CONNECTED;
+    whCommConnected am_connected      = WH_COMM_DISCONNECTED;
     whKeyId         loadedKeyId;
 
     if (config == NULL) {
@@ -126,35 +126,59 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
         }
     }
 
-    printf("Waiting for connection...\n");
 
     if (ret == 0) {
-        wh_Server_SetConnected(server, am_connected);
-
-        while (am_connected == WH_COMM_CONNECTED) {
+        printf("Waiting for connection...\n");
+        while (1) {
             ret = wh_Server_HandleRequestMessage(server);
             if (ret == WH_ERROR_NOTREADY) {
                 usleep(ONE_MS);
             }
-            else if (ret == WH_ERROR_OK) {
-                if (!connectionMessage) {
-                    printf("Successful connection!\n");
-                    connectionMessage = 1;
-                }
-            }
-            else {
+            else if (ret != WH_ERROR_OK) {
                 printf("Failed to wh_Server_HandleRequestMessage: %d\n", ret);
                 break;
             }
-            wh_Server_GetConnected(server, &am_connected);
+            else {
+                whCommConnected current_state;
+                int             get_conn_result =
+                    wh_Server_GetConnected(server, &current_state);
+                if (get_conn_result == WH_ERROR_OK) {
+                    if (current_state == WH_COMM_CONNECTED &&
+                        am_connected == WH_COMM_DISCONNECTED) {
+                        printf("Server connected\n");
+                        am_connected = WH_COMM_CONNECTED;
+                    }
+                    else if (current_state == WH_COMM_DISCONNECTED &&
+                             am_connected == WH_COMM_CONNECTED) {
+                        printf("Server disconnected\n");
+                        am_connected = WH_COMM_DISCONNECTED;
+
+                        /* Cleanup the server */
+                        (void)wh_Server_Cleanup(server);
+
+                        /* Reinitialize the server */
+                        ret = wh_Server_Init(server, config);
+                        if (ret != 0) {
+                            printf("Failed to reinitialize server: %d\n", ret);
+                            break;
+                        }
+
+                        if (keyFilePath != NULL) {
+                            ret = loadAndStoreKeys(server, &loadedKeyId, keyFilePath, keyId,
+                               clientId);
+                            if (ret != 0) {
+                                printf("server failed to load key, ret=%d\n", ret);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else {
+                    printf("Failed to get connection state: %d\n",
+                           get_conn_result);
+                }
+            }
         }
-        if (ret != 0) {
-            (void)wh_Server_Cleanup(server);
-        }
-        else {
-            ret = wh_Server_Cleanup(server);
-        }
-        printf("Server disconnected\n");
     }
     return ret;
 }
