@@ -25,7 +25,6 @@
 #ifndef WOLFHSM_CFG_H_
 #define WOLFHSM_CFG_H_
 
-
 /** wolfHSM settings.  Simple overrides to show they work */
 /* #define WOLFHSM_CFG_NO_CRYPTO */
 #define WOLFHSM_CFG_SHE_EXTENSION
@@ -35,7 +34,11 @@
 #define WOLFHSM_CFG_NVM_OBJECT_COUNT 32
 #define WOLFHSM_CFG_SERVER_KEYCACHE_COUNT 10
 #define WOLFHSM_CFG_SERVER_KEYCACHE_SIZE 1024
+#define WOLFHSM_CFG_SERVER_KEYCACHE_BIG_BUFSIZE 4096
+
 #define WOLFHSM_CFG_SERVER_DMAADDR_COUNT 8
 #define WOLFHSM_CFG_SERVER_CUSTOMCB_COUNT 8
+
+#define XMEMFENCE() __atomic_thread_fence(__ATOMIC_SEQ_CST)
 
 #endif /* WOLFHSM_CFG_H_ */

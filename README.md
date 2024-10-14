@@ -34,6 +34,13 @@ Set the `WOLFHSM_DIR` and `WOLFSSL_DIR` variables to point to your local install
 ### Executables
 In the root directory for wolfHSM-examples run `./posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf` to launch the server. In a separate shell, run `./posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf` to launch the client.
 
+### Loading a key on the server
+The example server supports loading a key at a specific keyId, passed as arguments on the command line. To load a key at a keyId in the server example, invoke the server with the `--key` and `--id` arguments.
+
+```
+./wh_server_tcp.elf --key /path/to/key.der --id <keyId>
+```
+
 ### Results
 After all steps are you complete you should see the following outputs.
 
