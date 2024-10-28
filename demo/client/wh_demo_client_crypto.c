@@ -9,12 +9,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "wolfhsm/wh_settings.h"
+
 #include "wolfhsm/wh_common.h"
+#include "wolfhsm/wh_crypto.h"
 #include "wolfhsm/wh_client.h"
 #include "wolfhsm/wh_client_crypto.h"
 #include "wolfhsm/wh_error.h"
-
-#include "user_settings.h"
+#include "wolfhsm/wh_utils.h"
 
 #include "wolfssl/wolfcrypt/settings.h"
 #include "wolfssl/wolfcrypt/types.h"
@@ -309,10 +311,15 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     char pubKeyFileBob[] = "../../../demo/certs/curve25519-public-bob.raw";
     char keyLabel[] = "baby's first key";
     uint8_t keyBuf[256];
+    uint8_t serial[WH_CRYPTO_CURVE25519_SERIAL_SIZE];
+    uint16_t serial_size = 0;
     uint8_t sharedOne[CURVE25519_KEYSIZE];
     uint8_t sharedTwo[CURVE25519_KEYSIZE];
     curve25519_key curve25519PrivateKey[1];
     curve25519_key curve25519PublicKey[1];
+
+    curve25519_key pubkey[1];
+    curve25519_key prvkey[1];
 
     /* open the first private curve25519 key */
     ret = keyFd = open(privKeyFileBob, O_RDONLY, 0);
@@ -330,9 +337,16 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
     close(keyFd);
 
+    ret = wc_curve25519_init_ex(prvkey, NULL, INVALID_DEVID);
+    ret = wc_curve25519_import_private(&keyBuf[CURVE25519_KEYSIZE], CURVE25519_KEYSIZE, prvkey);
+    printf("local sharedone private ret:%d", ret);
+
+    /* Serialize this private key */
+    ret = wh_Crypto_Curve25519SerializeKeyRaw(&keyBuf[CURVE25519_KEYSIZE], NULL, serial, &serial_size);
+
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPrivBob);
+        strlen(keyLabel), serial, serial_size, &keyIdPrivBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -367,10 +381,25 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
     close(keyFd);
+    outLen = sizeof(sharedOne);
+    ret = wc_curve25519_init_ex(pubkey, NULL, INVALID_DEVID);
+    ret = wc_curve25519_import_public(keyBuf, CURVE25519_KEYSIZE, pubkey);
+    printf("local sharedone public ret:%d", ret);
+    ret = wc_curve25519_shared_secret(prvkey, pubkey, sharedOne, (word32*)&outLen);
+
+    printf("local sharedone ret:%d outLen:%d\n", ret, outLen);
+#ifdef DEBUG_CRYPTOCB_VERBOSE
+    wh_Utils_Hexdump("local sharedOne:", sharedOne, outLen);
+#endif
+    wc_curve25519_free(pubkey);
+    wc_curve25519_free(prvkey);
+
+    /* Serialize this public key */
+    ret = wh_Crypto_Curve25519SerializeKeyRaw(NULL, keyBuf, serial, &serial_size);
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPubAlice);
+        strlen(keyLabel), serial, serial_size, &keyIdPubAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -389,6 +418,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
+    printf("Here4\n");
 
     /* generate shared secret from perspective one */
     outLen = sizeof(sharedOne);
@@ -419,9 +449,17 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     }
     close(keyFd);
 
+    ret = wc_curve25519_init_ex(prvkey, NULL, INVALID_DEVID);
+    ret = wc_curve25519_import_private(&keyBuf[CURVE25519_KEYSIZE], CURVE25519_KEYSIZE, prvkey);
+    printf("local sharedtwo private ret:%d", ret);
+
+
+    /* Serialize this private key */
+    ret = wh_Crypto_Curve25519SerializeKeyRaw(&keyBuf[CURVE25519_KEYSIZE], NULL, serial, &serial_size);
+
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPrivAlice);
+        strlen(keyLabel), serial, serial_size, &keyIdPrivAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -456,10 +494,27 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
     close(keyFd);
+    outLen = sizeof(sharedTwo);
+    ret = wc_curve25519_init_ex(pubkey, NULL, INVALID_DEVID);
+    ret = wc_curve25519_import_public(keyBuf, CURVE25519_KEYSIZE, pubkey);
+    printf("local sharedtwo public ret:%d", ret);
+    ret = wc_curve25519_shared_secret(prvkey, pubkey, sharedTwo, (word32*)&outLen);
+
+    printf("local sharedtwo ret:%d outLen:%d\n", ret, outLen);
+
+#ifdef DEBUG_CRYPTOCB_VERBOSE
+    wh_Utils_Hexdump("local sharedTwo:", sharedTwo, outLen);
+#endif
+    wc_curve25519_free(pubkey);
+    wc_curve25519_free(prvkey);
+
+
+    /* Serialize this public key */
+    ret = wh_Crypto_Curve25519SerializeKeyRaw(NULL, keyBuf, serial, &serial_size);
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPubBob);
+        strlen(keyLabel), serial, serial_size, &keyIdPubBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -487,7 +542,10 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         printf("Failed to wc_curve25519_shared_secret %d\n", ret);
         goto exit;
     }
-
+#ifdef DEBUG_CRYPTOCB_VERBOSE
+    wh_Utils_Hexdump("sharedOne:", sharedOne, outLen);
+    wh_Utils_Hexdump("sharedTwo:", sharedTwo, outLen);
+#endif
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
         printf("CURVE25519 shared secrets don't match with imported keys\n");
         ret = -1;
@@ -645,7 +703,7 @@ exit:
     (void)wc_FreeRng(rng);
     /* evict the keys */
     if (needEvictPriv) {
-        ret = wh_Client_GetKeyIdEcc(eccPrivate, &keyId);
+        ret = wh_Client_EccGetKeyId(eccPrivate, &keyId);
         if (ret != 0) {
             printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
             return ret;
@@ -656,7 +714,7 @@ exit:
         }
     }
     if (needEvictPub) {
-        ret = wh_Client_GetKeyIdEcc(eccPublic, &keyId);
+        ret = wh_Client_EccGetKeyId(eccPublic, &keyId);
         if (ret != 0) {
             printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
             return ret;
@@ -745,7 +803,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPrivBob);
+    ret = wh_Client_EccSetKeyId(eccPrivate, keyIdPrivBob);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
@@ -789,7 +847,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPubAlice);
+    ret = wh_Client_EccSetKeyId(eccPublic, keyIdPubAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
@@ -856,7 +914,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPrivAlice);
+    ret = wh_Client_EccSetKeyId(eccPrivate, keyIdPrivAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;
@@ -901,7 +959,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     }
 
     /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPubBob);
+    ret = wh_Client_EccSetKeyId(eccPublic, keyIdPubBob);
     if (ret != 0) {
         printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
         goto exit;

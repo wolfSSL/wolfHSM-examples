@@ -9,8 +9,10 @@
 #define WOLFCRYPT_ONLY
 
 /* Optional if debugging cryptocb's */
-/*#define DEBUG_CRYPTOCB */
-/*#define DEBUG_CRYPTOCB_VERBOSE */
+
+#define DEBUG_CRYPTOCB
+#define DEBUG_CRYPTOCB_VERBOSE
+
 
 /* Temporarily set this to key export function  */
 #define WOLFSSL_KEY_GEN
@@ -22,6 +24,7 @@
 
 /* Curve25519 Options */
 #define HAVE_CURVE25519
+#define HAVE_ECC
 
 
 
@@ -36,7 +39,6 @@
 #define WOLFSSL_AES_DIRECT
 #define WOLFSSL_CMAC
 
-#define HAVE_ECC
 #define HAVE_ECC_ENCRYPT
 #define HAVE_CURVE25519
 

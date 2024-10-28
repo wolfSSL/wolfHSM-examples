@@ -8,8 +8,10 @@
 
 #define WOLFCRYPT_ONLY
 
-/* #define DEBUG_CRYPTOCB */
-/* #define DEBUG_CRYPTOCB_VERBOSE */
+
+#define DEBUG_CRYPTOCB
+#define DEBUG_CRYPTOCB_VERBOSE
+
 
 /* Key gen is currently required on the server */
 #define WOLFSSL_KEY_GEN
