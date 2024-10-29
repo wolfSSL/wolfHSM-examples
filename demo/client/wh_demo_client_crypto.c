@@ -299,70 +299,61 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
     int keyFd;
     int keySz;
     word32 outLen;
-    whKeyId keyIdPrivBob = WH_KEYID_ERASED;
-    whKeyId keyIdPubAlice = WH_KEYID_ERASED;
-    whKeyId keyIdPrivAlice = WH_KEYID_ERASED;
-    whKeyId keyIdPubBob = WH_KEYID_ERASED;
-    char privKeyFileBob[] = "../../../demo/certs/curve25519-private-bob.raw";
-    char pubKeyFileAlice[] = "../../../demo/certs/curve25519-public-alice.raw";
-    char privKeyFileAlice[] = "../../../demo/certs/curve25519-private-alice.raw";
-    char pubKeyFileBob[] = "../../../demo/certs/curve25519-public-bob.raw";
+    whKeyId keyIdBob = WH_KEYID_ERASED;
+    whKeyId keyIdAlice = WH_KEYID_ERASED;
+    char keyPairFileBob[] = "../../../demo/certs/curve25519_keyBob.der";
+    char keyPairFileAlice[] = "../../../demo/certs/curve25519_keyAlice.der";
     char keyLabel[] = "baby's first key";
     uint8_t keyBuf[256];
     uint8_t sharedOne[CURVE25519_KEYSIZE];
     uint8_t sharedTwo[CURVE25519_KEYSIZE];
-    curve25519_key curve25519PrivateKey[1];
-    curve25519_key curve25519PublicKey[1];
 
-    /* open the first private curve25519 key */
-    ret = keyFd = open(privKeyFileBob, O_RDONLY, 0);
+    curve25519_key aliceKey[1];
+    curve25519_key bobKey[1];
+
+    /* open Bob's key pair file and read it into a local buffer */
+    ret = keyFd = open(keyPairFileBob, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileBob, ret);
+        printf("Failed to open %s %d\n", keyPairFileBob, ret);
         goto exit;
     }
-
-    /* read the first private key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileBob, ret);
-        close(keyFd);
         goto exit;
     }
     close(keyFd);
 
+
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPrivBob);
+        strlen(keyLabel), keyBuf, keySz, &keyIdBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
     }
 
-    /* initialize the private key */
-    ret = wc_curve25519_init_ex(curve25519PrivateKey, NULL, WH_DEV_ID);
+    /* initialize the wolfCrypt struct to use the cached key */
+    ret = wc_curve25519_init_ex(bobKey, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
         goto exit;
     }
-
-    /* set the assigned keyId */
-    ret = wh_Client_Curve25519SetKeyId(curve25519PrivateKey, keyIdPrivBob);
+    ret = wh_Client_Curve25519SetKeyId(bobKey, keyIdBob);
     if (ret != 0) {
         printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
     }
 
-    /* open the first public curve25519 key */
-    ret = keyFd = open(pubKeyFileAlice, O_RDONLY, 0);
+
+    /* open Alice's key pair file and read it into a local buffer */
+    ret = keyFd = open(keyPairFileAlice, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileAlice, ret);
+        printf("Failed to open %s %d\n", keyPairFileAlice, ret);
         goto exit;
     }
-
-    /* read the first public key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileAlice, ret);
+        printf("Failed to read %s %d\n", keyPairFileAlice, ret);
         close(keyFd);
         goto exit;
     }
@@ -370,21 +361,19 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPubAlice);
+        strlen(keyLabel), keyBuf, keySz, &keyIdAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
     }
 
-    /* initialize the public key */
-    ret = wc_curve25519_init_ex(curve25519PublicKey, NULL, WH_DEV_ID);
+    /* initialize the wolfCrypt struct to use the cached key */
+    ret = wc_curve25519_init_ex(aliceKey, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
         goto exit;
     }
-
-    /* set the assigned keyId */
-    ret = wh_Client_Curve25519SetKeyId(curve25519PublicKey, keyIdPubAlice);
+    ret = wh_Client_Curve25519SetKeyId(aliceKey, keyIdAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
         goto exit;
@@ -392,135 +381,25 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* generate shared secret from perspective one */
     outLen = sizeof(sharedOne);
-    ret = wc_curve25519_shared_secret(curve25519PrivateKey, curve25519PublicKey,
+    ret = wc_curve25519_shared_secret(bobKey, aliceKey,
         sharedOne, (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_curve25519_shared_secret %d\n", ret);
         goto exit;
     }
 
-    /* free the key structs */
-    wc_curve25519_free(curve25519PrivateKey);
-    wc_curve25519_free(curve25519PublicKey);
-
-    /* open the second private curve25519 key */
-    ret = keyFd = open(privKeyFileAlice, O_RDONLY, 0);
-    if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileAlice, ret);
-        goto exit;
-    }
-
-    /* read the second private key to local buffer */
-    ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
-    if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileAlice, ret);
-        close(keyFd);
-        goto exit;
-    }
-    close(keyFd);
-
-    /* cache the key in the HSM, get HSM assigned keyId */
-    ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPrivAlice);
-    if (ret != 0) {
-        printf("Failed to wh_Client_KeyCache %d\n", ret);
-        goto exit;
-    }
-
-    /* initialize the private key */
-    ret = wc_curve25519_init_ex(curve25519PrivateKey, NULL, WH_DEV_ID);
-    if (ret != 0) {
-        printf("Failed to wc_curve25519_init_ex %d\n", ret);
-        goto exit;
-    }
-
-    /* set the assigned keyId */
-    ret = wh_Client_Curve25519SetKeyId(curve25519PrivateKey, keyIdPrivAlice);
-    if (ret != 0) {
-        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
-        goto exit;
-    }
-
-    /* open the second public curve25519 key */
-    ret = keyFd = open(pubKeyFileBob, O_RDONLY, 0);
-    if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileBob, ret);
-        goto exit;
-    }
-
-    /* read the second public key to local buffer */
-    ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
-    if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileBob, ret);
-        close(keyFd);
-        goto exit;
-    }
-    close(keyFd);
-
-    /* cache the key in the HSM, get HSM assigned keyId */
-    ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPubBob);
-    if (ret != 0) {
-        printf("Failed to wh_Client_KeyCache %d\n", ret);
-        goto exit;
-    }
-
-    /* initialize the public key */
-    ret = wc_curve25519_init_ex(curve25519PublicKey, NULL, WH_DEV_ID);
-    if (ret != 0) {
-        printf("Failed to wc_curve25519_init_ex %d\n", ret);
-        goto exit;
-    }
-
-    /* set the assigned keyId */
-    ret = wh_Client_Curve25519SetKeyId(curve25519PublicKey, keyIdPubBob);
-    if (ret != 0) {
-        printf("Failed to wh_Client_Curve25519SetKeyId %d\n", ret);
-        goto exit;
-    }
-
-    /* generate shared secret from perspective two */
-    outLen = sizeof(sharedTwo);
-    ret = wc_curve25519_shared_secret(curve25519PrivateKey, curve25519PublicKey,
-        sharedTwo, (word32*)&outLen);
-    if (ret != 0) {
-        printf("Failed to wc_curve25519_shared_secret %d\n", ret);
-        goto exit;
-    }
-
-    if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
-        printf("CURVE25519 shared secrets don't match with imported keys\n");
-        ret = -1;
-        goto exit;
-    }
-    else {
-        printf("CURVE25519 shared secrets match with imported keys\n");
-    }
 exit:
-    /* free the key structs */
-    wc_curve25519_free(curve25519PrivateKey);
-    wc_curve25519_free(curve25519PublicKey);
+    wc_curve25519_free(aliceKey);
+    wc_curve25519_free(bobKey);
 
-    if (keyIdPrivBob != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPrivBob);
+    if (keyIdBob != WH_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdBob);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
     }
-    if (keyIdPubAlice != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPubAlice);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
-    if (keyIdPrivAlice != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPrivAlice);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
-        }
-    }
-    if (keyIdPubBob != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPubBob);
+    if (keyIdAlice != WH_KEYID_ERASED) {
+        ret = wh_Client_KeyEvict(clientContext, keyIdAlice);
         if (ret != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", ret);
         }
