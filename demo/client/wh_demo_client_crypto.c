@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
@@ -108,6 +107,7 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
 
 exit:
     (void)wc_FreeRng(rng);
+    (void)wc_FreeRsaKey(rsa);
     return ret;
 }
 
@@ -215,6 +215,11 @@ exit:
 #endif
 
 #ifdef HAVE_CURVE25519
+
+/*
+ * Generate a curve25519 key pair on the HSM and generate a shared secret
+ * from both perspectives.
+ */
 int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 {
     int ret = 0;
@@ -249,13 +254,13 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
     /* generate the keys on the HSM */
     ret = wc_curve25519_make_key(rng, CURVE25519_KEYSIZE, curve25519PrivateKey);
     if (ret != 0) {
-        printf("Failed to wc_curve25519_init_ex %d\n", ret);
+        printf("Failed to wc_curve25519_make_key %d\n", ret);
         goto exit;
     }
 
     ret = wc_curve25519_make_key(rng, CURVE25519_KEYSIZE, curve25519PublicKey);
     if (ret != 0) {
-        printf("Failed to wc_curve25519_init_ex %d\n", ret);
+        printf("Failed to wc_curve25519_make_key %d\n", ret);
         goto exit;
     }
 
@@ -276,10 +281,6 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
         goto exit;
     }
 
-    /* free the key structs */
-    wc_curve25519_free(curve25519PrivateKey);
-    wc_curve25519_free(curve25519PublicKey);
-
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
         printf("CURVE25519 shared secrets don't match\n");
         ret = -1;
@@ -289,11 +290,14 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
         printf("CURVE25519 shared secrets match\n");
     }
 exit:
+    /* free the key structs */
+    wc_curve25519_free(curve25519PrivateKey);
+    wc_curve25519_free(curve25519PublicKey);
     (void)wc_FreeRng(rng);
     return ret;
 }
 
-int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
+int wh_DemoClient_CryptoCurve25519ImportDer(whClientContext* clientContext)
 {
     int ret = 0;
     int keyFd;
@@ -388,6 +392,24 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
 
+    /* generate shared secret from perspective two */
+    outLen = sizeof(sharedTwo);
+    ret = wc_curve25519_shared_secret(aliceKey, bobKey,
+        sharedTwo, (word32*)&outLen);
+    if (ret != 0) {
+        printf("Failed to wc_curve25519_shared_secret %d\n", ret);
+        goto exit;
+    }
+
+    if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
+        printf("CURVE25519 shared secrets don't match\n");
+        ret = -1;
+        goto exit;
+    }
+    else {
+        printf("CURVE25519 shared secrets match\n");
+    }
+
 exit:
     wc_curve25519_free(aliceKey);
     wc_curve25519_free(bobKey);
@@ -406,6 +428,9 @@ exit:
     }
     return ret;
 }
+
+
+
 #endif /* HAVE_CURVE25519 */
 
 #if defined(HAVE_ECC)
@@ -956,6 +981,12 @@ int wh_DemoClient_CryptoAesCbcImport(whClientContext* clientContext)
         goto exit;
     }
 
+    /* Reset the IV so we can decrypt */
+    ret = wc_AesSetIV(aes, NULL);
+    if (ret != 0) {
+        printf("Failed to wc_AesSetIV %d\n", ret);
+    }
+
     /* decrypt the ciphertext */
     ret = wc_AesCbcDecrypt(aes, finalText, cipherText, sizeof(plainText));
     if (ret != 0) {
@@ -972,10 +1003,12 @@ int wh_DemoClient_CryptoAesCbcImport(whClientContext* clientContext)
     printf("AES CBC matches after decryption with imported key\n");
 exit:
     if (needEvict) {
-        /* evict the key */
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyId);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     return ret;
@@ -1107,6 +1140,7 @@ int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
     }
     printf("AES GCM matches after decryption with imported keys\n");
 exit:
+    wc_AesFree(aes);
     if (needEvict) {
         /* evict the key from the cache */
         ret = wh_Client_KeyEvict(clientContext, keyId);

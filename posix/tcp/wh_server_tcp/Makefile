@@ -24,8 +24,8 @@ ARCHFLAGS ?=
 
 # Compiler and linker flags
 ASFLAGS ?= $(ARCHFLAGS)
-CFLAGS_EXTRA ?= -Wno-cpp
-CFLAGS ?= $(ARCHFLAGS) -std=c99 -Wall $(CFLAGS_EXTRA)
+CFLAGS_EXTRA ?=
+CFLAGS ?= $(ARCHFLAGS) -Wno-cpp -std=c99 -Wall $(CFLAGS_EXTRA)
 LDFLAGS ?= $(ARCHFLAGS)
 
 # LD: generate map
@@ -35,7 +35,7 @@ LDFLAGS ?= $(ARCHFLAGS)
 LIBS = -lc -lm
 
 # Optimization level and place functions / data into separate sections to allow dead code removal 
-CFLAGS += -O3 -ffunction-sections -fdata-sections 
+CFLAGS += -O0 -ffunction-sections -fdata-sections 
 #-fstrict-volatile-bitfields #-fno-builtin
 
 # Remove unused sections and link time optimizations
