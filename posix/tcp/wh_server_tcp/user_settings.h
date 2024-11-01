@@ -64,5 +64,9 @@
 #define WOLFSSL_AES_DIRECT
 #define WOLFSSL_CMAC
 
+/* Include to support strcasecmp with POSIX build */
+#include <strings.h>
+
+
 #endif  /*define USER_SETTINGS_H */
 

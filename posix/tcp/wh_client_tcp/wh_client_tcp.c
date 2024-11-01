@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>  /* For printf */
 #include <string.h> /* For memset, memcpy */
-#include <unistd.h> /* For usleep */
+#include <time.h> /* For nanosleep */
 
 #include "wolfhsm/wh_error.h"
 #include "wolfhsm/wh_comm.h"
@@ -19,11 +19,20 @@
 static int wh_ClientTask(void* cf);
 
 
+static void sleepMs(long milliseconds)
+{
+    struct timespec req;
+    req.tv_sec  = milliseconds / 1000;
+    req.tv_nsec = (milliseconds % 1000) * 1000000;
+    nanosleep(&req, NULL);
+}
+
+
 enum {
 	REPEAT_COUNT = 10,
 	REQ_SIZE = 32,
 	RESP_SIZE = 64,
-	ONE_MS = 1000,
+	ONE_MS = 1,
 };
 
 #define WH_SERVER_TCP_IPSTRING "127.0.0.1"
@@ -49,11 +58,6 @@ static int wh_ClientTask(void* cf)
 
     ret = wh_Client_Init(client, config);
 
-    /*
-    extern int runtest(void);
-    runtest();
-    return(0);
-    */
     printf("Client connecting to server...\n");
 
     if (ret != 0) {
@@ -74,7 +78,8 @@ static int wh_ClientTask(void* cf)
                     printf("wh_CLient_EchoRequest failed with ret=%d\n", ret);
                 }
             }
-        } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
+            sleepMs(ONE_MS);
+        } while (ret == WH_ERROR_NOTREADY);
 
         if (ret != 0) {
             printf("Client had failure. Exiting\n");
@@ -87,7 +92,8 @@ static int wh_ClientTask(void* cf)
         do {
             ret = wh_Client_EchoResponse(client,
                     &rx_resp_len, rx_resp);
-        } while ((ret == WH_ERROR_NOTREADY) && (usleep(ONE_MS)==0));
+            sleepMs(ONE_MS);
+        } while (ret == WH_ERROR_NOTREADY);
 
         if (ret != 0) {
             printf("Client had failure. Exiting\n");

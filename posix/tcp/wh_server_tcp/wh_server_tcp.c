@@ -6,10 +6,10 @@
 #include <stdio.h>  /* For printf */
 #include <stdlib.h> /* For atoi */
 #include <string.h> /* For memset, memcpy, strcmp */
-#include <unistd.h> /* For sleep */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h> /* For nanosleep */
 
 #include "wolfhsm/wh_error.h"
 #include "wolfhsm/wh_comm.h"
@@ -20,11 +20,20 @@
 #include "wolfhsm/wh_nvm.h"
 #include "wolfhsm/wh_nvm_flash.h"
 #include "wolfhsm/wh_flash_ramsim.h"
+
 #include "port/posix/posix_transport_tcp.h"
 
 /** Local declarations */
 static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
                          int clientId);
+
+static void sleepMs(long milliseconds)
+{
+    struct timespec req;
+    req.tv_sec  = milliseconds / 1000;
+    req.tv_nsec = (milliseconds % 1000) * 1000000;
+    nanosleep(&req, NULL);
+}
 
 enum {
     ONE_MS = 1,
