@@ -300,7 +300,7 @@ exit:
     return ret;
 }
 
-int wh_DemoClient_CryptoCurve25519ImportDer(whClientContext* clientContext)
+int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 {
     int ret = 0;
     int keyFd;

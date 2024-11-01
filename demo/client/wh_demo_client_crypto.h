@@ -9,7 +9,7 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext);
 
 #ifdef HAVE_CURVE25519
 int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext);
-int wh_DemoClient_CryptoCurve25519ImportDer(whClientContext* clientContext);
+int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext);
 #endif /* HAVE_CURVE25519 */
 
 #if defined(HAVE_ECC)

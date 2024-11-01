@@ -63,7 +63,7 @@ int wh_DemoClient_All(whClientContext* clientContext)
         return rc;
     }
 
-    rc = wh_DemoClient_CryptoCurve25519ImportDer(clientContext);
+    rc = wh_DemoClient_CryptoCurve25519Import(clientContext);
     if (rc != 0) {
         return rc;
     }
