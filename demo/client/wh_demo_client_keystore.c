@@ -57,7 +57,7 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
     uint8_t  label[]                    = "my secret key";
     uint8_t  exportKey[sizeof(key)]     = {0};
     uint8_t  exportLabel[sizeof(label)] = {0};
-    uint32_t exportKeySz                = 0;
+    uint16_t exportKeySz                = 0;
 
     /* Cache the key in the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, label, sizeof(label), key,

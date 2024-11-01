@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>  /* For printf */
 #include <string.h> /* For memset, memcpy */
+#include <unistd.h> /* for read */
 #include <time.h> /* For nanosleep */
 
 #include "wolfhsm/wh_error.h"

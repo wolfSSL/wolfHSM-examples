@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h> /* for read/close */
 #include <time.h> /* For nanosleep */
 
 #include "wolfhsm/wh_error.h"
@@ -140,7 +141,7 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
         while (1) {
             ret = wh_Server_HandleRequestMessage(server);
             if (ret == WH_ERROR_NOTREADY) {
-                usleep(ONE_MS);
+                sleepMs(ONE_MS);
             }
             else if (ret != WH_ERROR_OK) {
                 printf("Failed to wh_Server_HandleRequestMessage: %d\n", ret);
