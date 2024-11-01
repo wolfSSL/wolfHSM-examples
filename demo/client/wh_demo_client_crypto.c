@@ -205,9 +205,12 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 exit:
     (void)wc_FreeRng(rng);
     if (needEvict) {
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyId);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     return ret;
@@ -402,12 +405,12 @@ int wh_DemoClient_CryptoCurve25519ImportDer(whClientContext* clientContext)
     }
 
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
-        printf("CURVE25519 shared secrets don't match\n");
+        printf("CURVE25519 import: shared secrets don't match\n");
         ret = -1;
         goto exit;
     }
     else {
-        printf("CURVE25519 shared secrets match\n");
+        printf("CURVE25519 import: shared secrets match\n");
     }
 
 exit:
@@ -415,22 +418,25 @@ exit:
     wc_curve25519_free(bobKey);
 
     if (keyIdBob != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdBob);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdBob);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     if (keyIdAlice != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdAlice);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdAlice);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     return ret;
 }
-
-
-
 #endif /* HAVE_CURVE25519 */
 
 #if defined(HAVE_ECC)
@@ -549,25 +555,39 @@ exit:
     (void)wc_FreeRng(rng);
     /* evict the keys */
     if (needEvictPriv) {
-        ret = wh_Client_GetKeyIdEcc(eccPrivate, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
+        int evictRet = wh_Client_GetKeyIdEcc(eccPrivate, &keyId);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_GetKeyIdRsa %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        else {
+            evictRet = wh_Client_KeyEvict(clientContext, keyId);
+            if (evictRet != 0) {
+                printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+                if (ret == 0) {
+                    ret = evictRet;
+                }
+            }
         }
     }
     if (needEvictPub) {
-        ret = wh_Client_GetKeyIdEcc(eccPublic, &keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", ret);
-            return ret;
+        int evictRet = wh_Client_GetKeyIdEcc(eccPublic, &keyId);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_GetKeyIdRsa %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        else {
+            evictRet = wh_Client_KeyEvict(clientContext, keyId);
+            if (evictRet != 0) {
+                printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+                if (ret == 0) {
+                    ret = evictRet;
+                }
+            }
         }
     }
     return ret;
@@ -851,27 +871,39 @@ exit:
     /* free rng */
     (void)wc_FreeRng(rng);
     if (keyIdPrivBob != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPrivBob);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPrivBob);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     if (keyIdPubAlice != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPubAlice);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPubAlice);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     if (keyIdPrivAlice != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPrivAlice);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPrivAlice);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     if (keyIdPubBob != WH_KEYID_ERASED) {
-        ret = wh_Client_KeyEvict(clientContext, keyIdPubBob);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPubBob);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     return ret;
@@ -1143,9 +1175,12 @@ exit:
     wc_AesFree(aes);
     if (needEvict) {
         /* evict the key from the cache */
-        ret = wh_Client_KeyEvict(clientContext, keyId);
-        if (ret != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", ret);
+        int evictRet = wh_Client_KeyEvict(clientContext, keyId);
+        if (evictRet != 0) {
+            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
+            if (ret == 0) {
+                ret = evictRet;
+            }
         }
     }
     return ret;
