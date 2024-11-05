@@ -54,13 +54,13 @@
  */
 int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
 {
-    int ret = 0;
-    int encSz = 0;
+    int        ret           = 0;
+    int        encSz         = 0;
     const char plainString[] = "The quick brown fox jumps over the lazy dog.";
-    byte plainText[256];
-    byte cipherText[256];
-    RsaKey rsa[1];
-    WC_RNG rng[1];
+    byte       plainText[256];
+    byte       cipherText[256];
+    RsaKey     rsa[1];
+    WC_RNG     rng[1];
 
     /* set the plainText to the test string */
     strcpy((char*)plainText, plainString);
@@ -87,8 +87,8 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
     }
 
     /* encrypt the plaintext */
-    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
-        sizeof(cipherText), rsa, rng);
+    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString),
+                                      cipherText, sizeof(cipherText), rsa, rng);
     if (ret < 0) {
         printf("Failed to wc_RsaPublicEncrypt %d\n", ret);
         goto exit;
@@ -97,7 +97,7 @@ int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
 
     /* decrypt the ciphertext */
     ret = wc_RsaPrivateDecrypt(cipherText, encSz, plainText, sizeof(plainText),
-        rsa);
+                               rsa);
     if (ret < 0) {
         printf("Failed to wc_RsaPrivateDecrypt %d\n", ret);
         goto exit;
@@ -125,20 +125,20 @@ exit:
  */
 int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 {
-    int ret = 0;
-    int encSz = 0;
-    int keyFd;
-    int keySz;
-    int needEvict = 0;
-    whKeyId keyId = WH_KEYID_ERASED;
-    char keyFile[] = "../../../demo/certs/ca-key.der";
+    int        ret   = 0;
+    int        encSz = 0;
+    int        keyFd;
+    int        keySz;
+    int        needEvict     = 0;
+    whKeyId    keyId         = WH_KEYID_ERASED;
+    char       keyFile[]     = "../../../demo/certs/ca-key.der";
     const char plainString[] = "The quick brown fox jumps over the lazy dog.";
-    char keyLabel[] = "baby's first key";
-    uint8_t keyBuf[2048];
-    byte plainText[256];
-    byte cipherText[256];
-    RsaKey rsa[1];
-    WC_RNG rng[1];
+    char       keyLabel[]    = "baby's first key";
+    uint8_t    keyBuf[2048];
+    byte       plainText[256];
+    byte       cipherText[256];
+    RsaKey     rsa[1];
+    WC_RNG     rng[1];
 
     /* set the plainText to the test string */
     strcpy((char*)plainText, plainString);
@@ -168,7 +168,7 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyId);
+                             strlen(keyLabel), keyBuf, keySz, &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -190,8 +190,8 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
     }
 
     /* encrypt the plaintext */
-    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString), cipherText,
-        sizeof(cipherText), rsa, rng);
+    encSz = ret = wc_RsaPublicEncrypt(plainText, sizeof(plainString),
+                                      cipherText, sizeof(cipherText), rsa, rng);
     if (ret < 0) {
         printf("Failed to wc_RsaPublicEncrypt %d\n", ret);
         goto exit;
@@ -200,7 +200,7 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 
     /* decrypt the ciphertext */
     ret = wc_RsaPrivateDecrypt(cipherText, encSz, plainText, sizeof(plainText),
-        rsa);
+                               rsa);
     if (ret < 0) {
         printf("Failed to wc_RsaPrivateDecrypt %d\n", ret);
         goto exit;
@@ -240,14 +240,14 @@ exit:
  */
 int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 {
-    int ret = 0;
-    word32 outLen;
-    uint8_t sharedOne[CURVE25519_KEYSIZE];
-    uint8_t sharedTwo[CURVE25519_KEYSIZE];
+    int            ret = 0;
+    word32         outLen;
+    uint8_t        sharedOne[CURVE25519_KEYSIZE];
+    uint8_t        sharedTwo[CURVE25519_KEYSIZE];
     curve25519_key curve25519PrivateKey[1];
     /* public from the first shared secret's perspective, actually private */
     curve25519_key curve25519PublicKey[1];
-    WC_RNG rng[1];
+    WC_RNG         rng[1];
 
     /* initialize rng to make the curve25519 keys */
     ret = wc_InitRng_ex(rng, NULL, WH_DEV_ID);
@@ -285,7 +285,7 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
     /* generate shared secrets from both perspectives */
     outLen = sizeof(sharedOne);
     ret = wc_curve25519_shared_secret(curve25519PrivateKey, curve25519PublicKey,
-        sharedOne, (word32*)&outLen);
+                                      sharedOne, (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_curve25519_shared_secret %d\n", ret);
         goto exit;
@@ -293,7 +293,7 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 
     outLen = sizeof(sharedTwo);
     ret = wc_curve25519_shared_secret(curve25519PublicKey, curve25519PrivateKey,
-        sharedTwo, (word32*)&outLen);
+                                      sharedTwo, (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_curve25519_shared_secret %d\n", ret);
         goto exit;
@@ -325,15 +325,15 @@ exit:
  */
 int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 {
-    int ret = 0;
-    int keyFd;
-    int keySz;
-    word32 outLen;
-    whKeyId keyIdBob = WH_KEYID_ERASED;
-    whKeyId keyIdAlice = WH_KEYID_ERASED;
-    char keyPairFileBob[] = "../../../demo/certs/curve25519_keyBob.der";
-    char keyPairFileAlice[] = "../../../demo/certs/curve25519_keyAlice.der";
-    char keyLabel[] = "baby's first key";
+    int     ret = 0;
+    int     keyFd;
+    int     keySz;
+    word32  outLen;
+    whKeyId keyIdBob           = WH_KEYID_ERASED;
+    whKeyId keyIdAlice         = WH_KEYID_ERASED;
+    char    keyPairFileBob[]   = "../../../demo/certs/curve25519_keyBob.der";
+    char    keyPairFileAlice[] = "../../../demo/certs/curve25519_keyAlice.der";
+    char    keyLabel[]         = "baby's first key";
     uint8_t keyBuf[256];
     uint8_t sharedOne[CURVE25519_KEYSIZE];
     uint8_t sharedTwo[CURVE25519_KEYSIZE];
@@ -356,7 +356,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdBob);
+                             strlen(keyLabel), keyBuf, keySz, &keyIdBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -391,7 +391,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdAlice);
+                             strlen(keyLabel), keyBuf, keySz, &keyIdAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -411,8 +411,8 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* Generate a shared secret from Bob's perspective */
     outLen = sizeof(sharedOne);
-    ret = wc_curve25519_shared_secret(bobKey, aliceKey,
-        sharedOne, (word32*)&outLen);
+    ret    = wc_curve25519_shared_secret(bobKey, aliceKey, sharedOne,
+                                         (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_curve25519_shared_secret %d\n", ret);
         goto exit;
@@ -420,8 +420,8 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 
     /* Generate a shared secret from Alice's perspective */
     outLen = sizeof(sharedTwo);
-    ret = wc_curve25519_shared_secret(aliceKey, bobKey,
-        sharedTwo, (word32*)&outLen);
+    ret    = wc_curve25519_shared_secret(aliceKey, bobKey, sharedTwo,
+                                         (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_curve25519_shared_secret %d\n", ret);
         goto exit;
@@ -475,17 +475,17 @@ exit:
  */
 int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
 {
-    int ret = 0;
-    int res;
-    word32 outLen;
-    ecc_key aliceKey[1];
-    ecc_key bobKey[1];
-    WC_RNG rng[1];
-    byte sharedOne[32];
-    byte sharedTwo[32];
+    int        ret = 0;
+    int        res;
+    word32     outLen;
+    ecc_key    aliceKey[1];
+    ecc_key    bobKey[1];
+    WC_RNG     rng[1];
+    byte       sharedOne[32];
+    byte       sharedTwo[32];
     const char plainMessage[] = "The quick brown fox jumps over the lazy dog.";
-    byte message[sizeof(plainMessage)];
-    byte signature[128];
+    byte       message[sizeof(plainMessage)];
+    byte       signature[128];
 
     /* Set the message to the test string */
     strcpy((char*)message, plainMessage);
@@ -524,15 +524,15 @@ int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
 
     /* Generate the shared secrets */
     outLen = 32;
-    ret = wc_ecc_shared_secret(aliceKey, bobKey, (byte*)sharedOne,
-        (word32*)&outLen);
+    ret    = wc_ecc_shared_secret(aliceKey, bobKey, (byte*)sharedOne,
+                                  (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
     }
 
     ret = wc_ecc_shared_secret(bobKey, aliceKey, (byte*)sharedTwo,
-        (word32*)&outLen);
+                               (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
@@ -550,8 +550,8 @@ int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
 
     /* Sign the plaintext using the private component of Alice's key */
     outLen = sizeof(signature);
-    ret = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
-        (word32*)&outLen, rng, aliceKey);
+    ret    = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
+                              (word32*)&outLen, rng, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
@@ -562,7 +562,7 @@ int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
      * parts. In a real scenario, the signing and verifying would occur at
      * separate times, and only the public key would be distributed */
     ret = wc_ecc_verify_hash((void*)signature, outLen, (void*)message,
-        sizeof(message), &res, aliceKey);
+                             sizeof(message), &res, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_verify_hash %d\n", ret);
         goto exit;
@@ -644,7 +644,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     /* Cache the key in the HSM, get HSM assigned keyId. From here on out, the
      * keys are stored in the HSM and can be referred to by keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdAlice);
+                             strlen(keyLabel), keyBuf, keySz, &keyIdAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -673,7 +673,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
 
     /* Now we can do the same procedure for Bob's keypair */
-    
+
     /* Open Bob's keypair file and read it into a local buffer */
     ret = keyFd = open(keyFileBob, O_RDONLY, 0);
     if (ret < 0) {
@@ -689,7 +689,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
     close(keyFd);
     /* Cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdBob);
+                             strlen(keyLabel), keyBuf, keySz, &keyIdBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -716,8 +716,8 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* Generate a 32-byte shared secret from Alice's perspective */
     outLen = 32;
-    ret = wc_ecc_shared_secret(aliceKey, bobKey, (byte*)sharedOne,
-        (word32*)&outLen);
+    ret    = wc_ecc_shared_secret(aliceKey, bobKey, (byte*)sharedOne,
+                                  (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
@@ -725,8 +725,8 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* Generate a 32-byte shared secret from Bob's perspective */
     outLen = 32;
-    ret = wc_ecc_shared_secret(bobKey, aliceKey, (byte*)sharedTwo,
-        (word32*)&outLen);
+    ret    = wc_ecc_shared_secret(bobKey, aliceKey, (byte*)sharedTwo,
+                                  (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
@@ -744,8 +744,8 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 
     /* Sign the plaintext with Alice's private key */
     sigLen = sizeof(signature);
-    ret = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
-        (word32*)&sigLen, rng, aliceKey);
+    ret    = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
+                              (word32*)&sigLen, rng, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_sign_hash %d\n", ret);
         goto exit;
@@ -756,7 +756,7 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
      * signing and verifying would occur at separate times, and only the public
      * key would be distributed */
     ret = wc_ecc_verify_hash((void*)signature, sigLen, (void*)message,
-        sizeof(message), &res, aliceKey);
+                             sizeof(message), &res, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_verify_hash %d\n", ret);
         goto exit;
@@ -808,9 +808,9 @@ exit:
  */
 int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
 {
-    int ret = 0;
-    Aes aes[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    int  ret = 0;
+    Aes  aes[1];
+    byte key[]       = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     byte plainText[] = {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     byte cipherText[16];
     byte finalText[16];
@@ -819,7 +819,8 @@ int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
     ret = wc_AesInit(aes, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_AesInit %d\n", ret);
-    } else {
+    }
+    else {
         /* set the key on the client side */
         ret = wc_AesSetKey(aes, key, sizeof(key), NULL, AES_ENCRYPTION);
         if (ret != 0) {
@@ -827,7 +828,8 @@ int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
         }
         if (ret == 0) {
             /* encrypt the plaintext */
-            ret = wc_AesCbcEncrypt(aes, cipherText, plainText, sizeof(plainText));
+            ret =
+                wc_AesCbcEncrypt(aes, cipherText, plainText, sizeof(plainText));
             if (ret != 0) {
                 printf("Failed to wc_AesCbcEncrypt %d\n", ret);
             }
@@ -843,7 +845,8 @@ int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
 
         if (ret == 0) {
             /* decrypt the ciphertext */
-            ret = wc_AesCbcDecrypt(aes, finalText, cipherText, sizeof(plainText));
+            ret =
+                wc_AesCbcDecrypt(aes, finalText, cipherText, sizeof(plainText));
             if (ret != 0) {
                 printf("Failed to wc_AesCbcDecrypt %d\n", ret);
             }
@@ -854,7 +857,8 @@ int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
             if (memcmp(plainText, finalText, sizeof(plainText)) != 0) {
                 printf("AES CBC doesn't match after decryption\n");
                 ret = -1;
-            } else {
+            }
+            else {
                 printf("AES CBC matches after decryption\n");
             }
         }
@@ -866,19 +870,19 @@ int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
 }
 
 /*
- * Demonstrates AES CBC encryption and decryption using an key cached on the HSM.
- * Once cached, the key is referred to by keyId on the client and not resident
- * in the local wolfCrypt struct.
+ * Demonstrates AES CBC encryption and decryption using an key cached on the
+ * HSM. Once cached, the key is referred to by keyId on the client and not
+ * resident in the local wolfCrypt struct.
  */
 int wh_DemoClient_CryptoAesCbcImport(whClientContext* clientContext)
 {
-    int ret = 0;
-    int needEvict = 0;
-    whKeyId keyId = WH_KEYID_ERASED;
-    Aes aes[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    char keyLabel[] = "baby's first key";
-    byte plainText[] = {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+    int     ret       = 0;
+    int     needEvict = 0;
+    whKeyId keyId     = WH_KEYID_ERASED;
+    Aes     aes[1];
+    byte    key[]      = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char    keyLabel[] = "baby's first key";
+    byte plainText[]   = {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     byte cipherText[16];
     byte finalText[16];
 
@@ -891,7 +895,7 @@ int wh_DemoClient_CryptoAesCbcImport(whClientContext* clientContext)
 
     /* cache the key on the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        sizeof(keyLabel), key, sizeof(key), &keyId);
+                             sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -955,10 +959,10 @@ exit:
  */
 int wh_DemoClient_CryptoAesGcm(whClientContext* clientContext)
 {
-    int ret = 0;
-    Aes aes[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    byte iv[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    int  ret = 0;
+    Aes  aes[1];
+    byte key[]    = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    byte iv[]     = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     byte authIn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     byte authTag[16];
     byte plainText[] = {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
@@ -981,8 +985,8 @@ int wh_DemoClient_CryptoAesGcm(whClientContext* clientContext)
 
     /* encrypt the plaintext */
     ret = wc_AesGcmEncrypt(aes, cipherText, plainText, sizeof(plainText), iv,
-        sizeof(iv), authTag, sizeof(authTag), authIn,
-        sizeof(authIn));
+                           sizeof(iv), authTag, sizeof(authTag), authIn,
+                           sizeof(authIn));
     if (ret != 0) {
         printf("Failed to wc_AesGcmEncrypt %d\n", ret);
         goto exit;
@@ -990,7 +994,8 @@ int wh_DemoClient_CryptoAesGcm(whClientContext* clientContext)
 
     /* decrypt the ciphertext */
     ret = wc_AesGcmDecrypt(aes, finalText, cipherText, sizeof(plainText), iv,
-        sizeof(iv), authTag, sizeof(authTag), authIn, sizeof(authIn));
+                           sizeof(iv), authTag, sizeof(authTag), authIn,
+                           sizeof(authIn));
     if (ret != 0) {
         printf("Failed to wc_AesGcmDecrypt %d\n", ret);
         goto exit;
@@ -1008,21 +1013,21 @@ exit:
 }
 
 /*
- * Demonstrates AES GCM encryption and decryption using an key cached on the HSM.
- * Once cached, the key is referred to by keyId on the client and not resident
- * in the local wolfCrypt struct.
+ * Demonstrates AES GCM encryption and decryption using an key cached on the
+ * HSM. Once cached, the key is referred to by keyId on the client and not
+ * resident in the local wolfCrypt struct.
  */
 int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
 {
-    int ret = 0;
-    int needEvict = 0;
-    whKeyId keyId = WH_KEYID_ERASED;
-    Aes aes[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    char keyLabel[] = "baby's first key";
-    byte iv[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    byte authIn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    byte authTag[16];
+    int     ret       = 0;
+    int     needEvict = 0;
+    whKeyId keyId     = WH_KEYID_ERASED;
+    Aes     aes[1];
+    byte    key[]      = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char    keyLabel[] = "baby's first key";
+    byte    iv[]       = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    byte    authIn[]   = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    byte    authTag[16];
     byte plainText[] = {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     byte cipherText[16];
     byte finalText[16];
@@ -1036,7 +1041,7 @@ int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
 
     /* cache the key on the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        sizeof(keyLabel), key, sizeof(key), &keyId);
+                             sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -1060,7 +1065,8 @@ int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
 
     /* encrypt the plaintext */
     ret = wc_AesGcmEncrypt(aes, cipherText, plainText, sizeof(plainText), iv,
-        sizeof(iv), authTag, sizeof(authTag), authIn, sizeof(authIn));
+                           sizeof(iv), authTag, sizeof(authTag), authIn,
+                           sizeof(authIn));
     if (ret != 0) {
         printf("Failed to wc_AesGcmEncrypt %d\n", ret);
         goto exit;
@@ -1068,7 +1074,8 @@ int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
 
     /* decrypt the ciphertext */
     ret = wc_AesGcmDecrypt(aes, finalText, cipherText, sizeof(plainText), iv,
-        sizeof(iv), authTag, sizeof(authTag), authIn, sizeof(authIn));
+                           sizeof(iv), authTag, sizeof(authTag), authIn,
+                           sizeof(authIn));
     if (ret != 0) {
         printf("Failed to wc_AesGcmDecrypt %d\n", ret);
         goto exit;
@@ -1105,16 +1112,16 @@ exit:
  */
 int wh_DemoClient_CryptoCmac(whClientContext* clientContext)
 {
-    int ret = 0;
+    int    ret = 0;
     word32 outLen;
-    Cmac cmac[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    char message[] = "hash and verify me!";
-    byte tag[16];
+    Cmac   cmac[1];
+    byte   key[]     = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char   message[] = "hash and verify me!";
+    byte   tag[16];
 
     /* initialize the cmac struct and set the key */
-    ret = wc_InitCmac_ex(cmac, key, sizeof(key), WC_CMAC_AES,
-        NULL, NULL, WH_DEV_ID);
+    ret = wc_InitCmac_ex(cmac, key, sizeof(key), WC_CMAC_AES, NULL, NULL,
+                         WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitCmac_ex %d\n", ret);
         goto exit;
@@ -1129,15 +1136,16 @@ int wh_DemoClient_CryptoCmac(whClientContext* clientContext)
 
     /* get the cmac tag */
     outLen = sizeof(tag);
-    ret = wc_CmacFinal(cmac, tag, &outLen);
+    ret    = wc_CmacFinal(cmac, tag, &outLen);
     if (ret != 0) {
         printf("Failed to wc_CmacFinal %d\n", ret);
         goto exit;
     }
 
     /* verify the tag */
-    ret = wc_AesCmacVerify_ex(cmac, tag, sizeof(tag), (byte*)message,
-        strlen(message), key, sizeof(key), NULL, WH_DEV_ID);
+    ret =
+        wc_AesCmacVerify_ex(cmac, tag, sizeof(tag), (byte*)message,
+                            strlen(message), key, sizeof(key), NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("CMAC hash and verify failed %d\n", ret);
         goto exit;
@@ -1156,18 +1164,17 @@ exit:
  */
 int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 {
-    int ret = 0;
-    word32 outLen;
+    int     ret = 0;
+    word32  outLen;
     whKeyId keyId = WH_KEYID_ERASED;
-    Cmac cmac[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    char keyLabel[] = "baby's first key";
-    char message[] = "hash and verify me!";
-    byte tag[16];
+    Cmac    cmac[1];
+    byte    key[]      = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char    keyLabel[] = "baby's first key";
+    char    message[]  = "hash and verify me!";
+    byte    tag[16];
 
     /* initialize the cmac struct */
-    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL,
-        WH_DEV_ID);
+    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitCmac_ex %d\n", ret);
         goto exit;
@@ -1175,7 +1182,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 
     /* cache the key on the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        sizeof(keyLabel), key, sizeof(key), &keyId);
+                             sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -1197,7 +1204,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 
     /* get the cmac tag */
     outLen = sizeof(tag);
-    ret = wc_CmacFinal(cmac, tag, &outLen);
+    ret    = wc_CmacFinal(cmac, tag, &outLen);
     if (ret != 0) {
         printf("Failed to wc_CmacFinal %d\n", ret);
         goto exit;
@@ -1205,7 +1212,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 
     /* cache the key on the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        sizeof(keyLabel), key, sizeof(key), &keyId);
+                             sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -1221,7 +1228,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
     /* verify the cmac tag using the special HSM oneshot function
      * wh_Client_AesCmacVerify which is required for pre cached keys */
     ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
-        strlen(message), keyId, NULL);
+                                  strlen(message), keyId, NULL);
     if (ret != 0) {
         printf("CMAC hash and verify failed with imported key %d\n", ret);
         goto exit;
@@ -1240,18 +1247,17 @@ exit:
  */
 int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
 {
-    int ret = 0;
-    word32 outLen;
+    int     ret = 0;
+    word32  outLen;
     whKeyId keyId = WH_KEYID_ERASED;
-    Cmac cmac[1];
-    byte key[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    char keyLabel[] = "baby's first key";
-    char message[] = "hash and verify me!";
-    byte tag[16];
+    Cmac    cmac[1];
+    byte    key[]      = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char    keyLabel[] = "baby's first key";
+    char    message[]  = "hash and verify me!";
+    byte    tag[16];
 
     /* initialize the cmac struct */
-    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL,
-        WH_DEV_ID);
+    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitCmac_ex %d\n", ret);
         goto exit;
@@ -1259,7 +1265,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
 
     /* cache the key on the HSM */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        sizeof(keyLabel), key, sizeof(key), &keyId);
+                             sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -1275,8 +1281,8 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     /* generate the cmac tag using the special HSM wh_Client_AesCmacGenerate
      * function which is required for pre cached keys */
     outLen = sizeof(tag);
-    ret = wh_Client_CmacAesGenerate(cmac, tag, &outLen, (byte*)message,
-        sizeof(message), keyId, NULL);
+    ret    = wh_Client_CmacAesGenerate(cmac, tag, &outLen, (byte*)message,
+                                       sizeof(message), keyId, NULL);
     if (ret != 0) {
         printf("Failed to wh_Client_AesCmacGenerate %d\n", ret);
         goto exit;
@@ -1285,7 +1291,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     /* cache the key on the HSM again, cmac keys are evicted after wc_CmacFinal
      * is called */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        sizeof(keyLabel), key, sizeof(key), &keyId);
+                             sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
@@ -1301,9 +1307,10 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     /* verify the cmac tag using the special HSM oneshot function
      * wh_Client_AesCmacVerify which is required for pre cached keys */
     ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
-        sizeof(message), keyId, NULL);
+                                  sizeof(message), keyId, NULL);
     if (ret != 0) {
-        printf("CMAC hash and verify oneshot failed with imported key %d\n", ret);
+        printf("CMAC hash and verify oneshot failed with imported key %d\n",
+               ret);
         goto exit;
     }
 
@@ -1313,4 +1320,3 @@ exit:
     return ret;
 }
 #endif /* WOLFSSL_CMAC && !NO_AES */
-
