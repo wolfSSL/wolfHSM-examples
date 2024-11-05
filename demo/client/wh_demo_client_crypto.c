@@ -45,6 +45,13 @@
 #include "wh_demo_client_crypto.h"
 
 #if !defined(NO_RSA)
+
+/*
+ * Generates an RSA key pair on the HSM and uses it to encrypt and decrypt a
+ * plaintext string. The key is ephemeral, meaning key material is generated
+ * on the HSM but stored locally on the client. Keys are imported and cached
+ * when requested for use, then evicted from the cache immediately after use.
+ */
 int wh_DemoClient_CryptoRsa(whClientContext* clientContext)
 {
     int ret = 0;
@@ -111,6 +118,11 @@ exit:
     return ret;
 }
 
+/*
+ * Imports an RSA key from a DER file, and caches it on the HSM. The key is
+ * then used to encrypt and decrypt a plaintext string. The key is referred to
+ * by keyId on the client and not resident in the local wolfCrypt struct
+ */
 int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
 {
     int ret = 0;
@@ -220,8 +232,11 @@ exit:
 #ifdef HAVE_CURVE25519
 
 /*
- * Generate a curve25519 key pair on the HSM and generate a shared secret
- * from both perspectives.
+ * Generate two curve25519 key pairs on the HSM and use them two generate two
+ * matching shared secrets. This example uses ephemeral keys, meaning key
+ * material is generated on the HSM but stored locally on the client. Keys are
+ * imported and cached when requested for use, then evicted from the cache
+ * immediately after use.
  */
 int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 {
@@ -269,7 +284,6 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
 
     /* generate shared secrets from both perspectives */
     outLen = sizeof(sharedOne);
-
     ret = wc_curve25519_shared_secret(curve25519PrivateKey, curve25519PublicKey,
         sharedOne, (word32*)&outLen);
     if (ret != 0) {
@@ -277,6 +291,7 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
         goto exit;
     }
 
+    outLen = sizeof(sharedTwo);
     ret = wc_curve25519_shared_secret(curve25519PublicKey, curve25519PrivateKey,
         sharedTwo, (word32*)&outLen);
     if (ret != 0) {
@@ -284,6 +299,7 @@ int wh_DemoClient_CryptoCurve25519(whClientContext* clientContext)
         goto exit;
     }
 
+    /* Compare the shared secrets, they should match */
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
         printf("CURVE25519 shared secrets don't match\n");
         ret = -1;
@@ -300,6 +316,13 @@ exit:
     return ret;
 }
 
+
+/*
+ * Imports two curve25519 key pairs from DER files, and caches them on the HSM.
+ * The keys are then used to generate two matching shared secrets. Key material
+ * is not resident on in the wolfCrypt structure used by the client, and are
+ * referred to by keyId.
+ */
 int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
 {
     int ret = 0;
@@ -374,7 +397,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
 
-    /* initialize the wolfCrypt struct to use the cached key */
+    /* Initialize the wolfCrypt struct to use the cached key */
     ret = wc_curve25519_init_ex(aliceKey, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_curve25519_init_ex %d\n", ret);
@@ -386,7 +409,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
 
-    /* generate shared secret from perspective one */
+    /* Generate a shared secret from Bob's perspective */
     outLen = sizeof(sharedOne);
     ret = wc_curve25519_shared_secret(bobKey, aliceKey,
         sharedOne, (word32*)&outLen);
@@ -395,7 +418,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
 
-    /* generate shared secret from perspective two */
+    /* Generate a shared secret from Alice's perspective */
     outLen = sizeof(sharedTwo);
     ret = wc_curve25519_shared_secret(aliceKey, bobKey,
         sharedTwo, (word32*)&outLen);
@@ -404,6 +427,7 @@ int wh_DemoClient_CryptoCurve25519Import(whClientContext* clientContext)
         goto exit;
     }
 
+    /* Compare the shared secrets, they should match */
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
         printf("CURVE25519 import: shared secrets don't match\n");
         ret = -1;
@@ -417,6 +441,7 @@ exit:
     wc_curve25519_free(aliceKey);
     wc_curve25519_free(bobKey);
 
+    /* (Optional) Evict the keys from the HSM cache */
     if (keyIdBob != WH_KEYID_ERASED) {
         int evictRet = wh_Client_KeyEvict(clientContext, keyIdBob);
         if (evictRet != 0) {
@@ -440,16 +465,21 @@ exit:
 #endif /* HAVE_CURVE25519 */
 
 #if defined(HAVE_ECC)
+
+/*
+ * Generate two ECC key pairs on the HSM and use them to generate two matching
+ * shared secrets. This example uses ephemeral keys, meaning key material is
+ * generated on the HSM but stored locally on the client. Keys are imported and
+ * cached when requested for use, then evicted from the cache immediately after
+ * use.
+ */
 int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
 {
     int ret = 0;
     int res;
-    int needEvictPriv = 0;
-    int needEvictPub = 0;
-    whKeyId keyId = WH_KEYID_ERASED;
     word32 outLen;
-    ecc_key eccPrivate[1];
-    ecc_key eccPublic[1];
+    ecc_key aliceKey[1];
+    ecc_key bobKey[1];
     WC_RNG rng[1];
     byte sharedOne[32];
     byte sharedTwo[32];
@@ -457,63 +487,58 @@ int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
     byte message[sizeof(plainMessage)];
     byte signature[128];
 
-    /* set the message to the test string */
+    /* Set the message to the test string */
     strcpy((char*)message, plainMessage);
 
-    /* initialize rng to make the ecc keys */
+    /* Initialize the rng to make the ecc keys */
     ret = wc_InitRng_ex(rng, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitRng_ex %d\n", ret);
         goto exit;
     }
 
-    /* initialize the keys */
-    ret = wc_ecc_init_ex(eccPrivate, NULL, WH_DEV_ID);
+    /* Initialize the local wolfCrypt structs */
+    ret = wc_ecc_init_ex(aliceKey, NULL, WH_DEV_ID);
+    if (ret != 0) {
+        printf("Failed to wc_ecc_init_ex %d\n", ret);
+        goto exit;
+    }
+    ret = wc_ecc_init_ex(bobKey, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_ecc_init_ex %d\n", ret);
         goto exit;
     }
 
-    ret = wc_ecc_init_ex(eccPublic, NULL, WH_DEV_ID);
+    /* Make the keys. These are generated on the HSM as ephemeral keys and sent
+     * back to the client to store locally in the ecc_key structs */
+    ret = wc_ecc_make_key(rng, 32, aliceKey);
     if (ret != 0) {
-        printf("Failed to wc_ecc_init_ex %d\n", ret);
+        printf("Failed to wc_ecc_make_key %d\n", ret);
         goto exit;
     }
-
-    /* make the keys */
-    ret = wc_ecc_make_key(rng, 32, eccPrivate);
+    ret = wc_ecc_make_key(rng, 32, bobKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_make_key %d\n", ret);
         goto exit;
     }
 
-    needEvictPriv = 1;
-
-    ret = wc_ecc_make_key(rng, 32, eccPublic);
-    if (ret != 0) {
-        printf("Failed to wc_ecc_make_key %d\n", ret);
-        goto exit;
-    }
-
-    needEvictPub = 1;
-
-    /* generate the shared secrets */
+    /* Generate the shared secrets */
     outLen = 32;
-    ret = wc_ecc_shared_secret(eccPrivate, eccPublic, (byte*)sharedOne,
+    ret = wc_ecc_shared_secret(aliceKey, bobKey, (byte*)sharedOne,
         (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
     }
 
-    ret = wc_ecc_shared_secret(eccPublic, eccPrivate, (byte*)sharedTwo,
+    ret = wc_ecc_shared_secret(bobKey, aliceKey, (byte*)sharedTwo,
         (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
     }
 
-    /* compare the shared secrets */
+    /* Compare the shared secrets, they should match */
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
         printf("ECC shared secrets don't match\n");
         ret = -1;
@@ -523,18 +548,21 @@ int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
         printf("ECC shared secrets match\n");
     }
 
-    /* sign the plaintext */
+    /* Sign the plaintext using the private component of Alice's key */
     outLen = sizeof(signature);
     ret = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
-        (word32*)&outLen, rng, eccPrivate);
+        (word32*)&outLen, rng, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
     }
 
-    /* verify the hash */
+    /* Verify the hash using the public component of Alice's key. Note that
+     * the keys generated for Alice and Bob contain both public and private
+     * parts. In a real scenario, the signing and verifying would occur at
+     * separate times, and only the public key would be distributed */
     ret = wc_ecc_verify_hash((void*)signature, outLen, (void*)message,
-        sizeof(message), &res, eccPrivate);
+        sizeof(message), &res, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_verify_hash %d\n", ret);
         goto exit;
@@ -548,298 +576,163 @@ int wh_DemoClient_CryptoEcc(whClientContext* clientContext)
         goto exit;
     }
 exit:
-    /* free the keys */
-    wc_ecc_free(eccPrivate);
-    wc_ecc_free(eccPublic);
-    /* free rng */
+    /* Free the keys */
+    (void)wc_ecc_free(aliceKey);
+    (void)wc_ecc_free(bobKey);
+    /* Free the rng */
     (void)wc_FreeRng(rng);
-    /* evict the keys */
-    if (needEvictPriv) {
-        int evictRet = wh_Client_GetKeyIdEcc(eccPrivate, &keyId);
-        if (evictRet != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", evictRet);
-            if (ret == 0) {
-                ret = evictRet;
-            }
-        }
-        else {
-            evictRet = wh_Client_KeyEvict(clientContext, keyId);
-            if (evictRet != 0) {
-                printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
-                if (ret == 0) {
-                    ret = evictRet;
-                }
-            }
-        }
-    }
-    if (needEvictPub) {
-        int evictRet = wh_Client_GetKeyIdEcc(eccPublic, &keyId);
-        if (evictRet != 0) {
-            printf("Failed to wh_Client_GetKeyIdRsa %d\n", evictRet);
-            if (ret == 0) {
-                ret = evictRet;
-            }
-        }
-        else {
-            evictRet = wh_Client_KeyEvict(clientContext, keyId);
-            if (evictRet != 0) {
-                printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
-                if (ret == 0) {
-                    ret = evictRet;
-                }
-            }
-        }
-    }
+
+    /* Since all keys are ephemeral, we don't need to evict them from the HSM
+     * cache, as this happens automatically */
     return ret;
 }
 
+
+/*
+ * Imports two ECC key pairs from DER files, and caches them on the HSM. The
+ * keys are then used to generate two matching shared secrets. Key material is
+ * not resident on in the wolfCrypt structure used by the client, and are
+ * referred to by keyId.
+ */
 int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
 {
-    int ret = 0;
-    int res;
-    int keyFd;
-    int keySz;
-    whKeyId keyIdPrivBob = WH_KEYID_ERASED;
-    whKeyId keyIdPubAlice = WH_KEYID_ERASED;
-    whKeyId keyIdPrivAlice = WH_KEYID_ERASED;
-    whKeyId keyIdPubBob = WH_KEYID_ERASED;
-    word32 outLen;
-    word32 sigLen;
-    char privKeyFileBob[] = "../../../demo/certs/ecc-private-bob.raw";
-    char pubKeyFileAlice[] = "../../../demo/certs/ecc-public-alice.raw";
-    char privKeyFileAlice[] = "../../../demo/certs/ecc-private-alice.raw";
-    char pubKeyFileBob[] = "../../../demo/certs/ecc-public-bob.raw";
-    char keyLabel[] = "baby's first key";
-    ecc_key eccPrivate[1];
-    ecc_key eccPublic[1];
-    WC_RNG rng[1];
-    byte sharedOne[32];
-    byte sharedTwo[32];
+    int        ret = 0;
+    int        res;
+    int        keyFd;
+    int        keySz;
+    whKeyId    keyIdAlice = WH_KEYID_ERASED;
+    whKeyId    keyIdBob   = WH_KEYID_ERASED;
+    word32     outLen;
+    word32     sigLen;
+    char       keyFileAlice[] = "../../../demo/certs/alice-ecc256-key.der";
+    char       keyFileBob[]   = "../../../demo/certs/bob-ecc256-key.der";
+    char       keyLabel[]     = "baby's first key";
+    ecc_key    aliceKey[1];
+    ecc_key    bobKey[1];
+    WC_RNG     rng[1];
+    byte       sharedOne[32];
+    byte       sharedTwo[32];
     const char plainMessage[] = "The quick brown fox jumps over the lazy dog.";
-    byte message[sizeof(plainMessage)];
-    byte signature[128];
-    uint8_t keyBuf[256];
+    byte       message[sizeof(plainMessage)];
+    byte       signature[128];
+    uint8_t    keyBuf[256];
 
-    /* set the message to the test string */
+    /* Set the message to the test string */
     strcpy((char*)message, plainMessage);
 
-    /* initialize rng for signature signing */
+    /* Initialize the rng for signature signing */
     ret = wc_InitRng_ex(rng, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_InitRng_ex %d\n", ret);
         goto exit;
     }
 
-    /* open the first private ecc key */
-    ret = keyFd = open(privKeyFileBob, O_RDONLY, 0);
+    /* Open Alice's keypair file and read it into a local buffer */
+    ret = keyFd = open(keyFileAlice, O_RDONLY, 0);
     if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileBob, ret);
+        printf("Failed to open %s %d\n", keyFileAlice, ret);
         goto exit;
     }
-
-    /* read the first private key to local buffer */
+    /* Read the first private key to local buffer */
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileBob, ret);
+        printf("Failed to read %s %d\n", keyFileAlice, ret);
         close(keyFd);
         goto exit;
     }
     close(keyFd);
-
-    /* cache the key in the HSM, get HSM assigned keyId */
+    /* Cache the key in the HSM, get HSM assigned keyId. From here on out, the
+     * keys are stored in the HSM and can be referred to by keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPrivBob);
+        strlen(keyLabel), keyBuf, keySz, &keyIdAlice);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
     }
 
-    /* initialize the private key */
-    ret = wc_ecc_init_ex(eccPrivate, NULL, WH_DEV_ID);
+    /* At this point we could also commit the key to NVM if required */
+
+    /* Initialize the local wolfCrypt struct, and configure it to use the cached
+     * key */
+    ret = wc_ecc_init_ex(aliceKey, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_ecc_init_ex %d\n", ret);
         goto exit;
     }
-
-    /* set the curveId by size */
-    ret = wc_ecc_set_curve(eccPrivate, 32, -1);
+    ret = wh_Client_EccSetKeyId(aliceKey, keyIdAlice);
+    if (ret != 0) {
+        printf("Failed to wh_Client_EccSetKeyId %d\n", ret);
+        goto exit;
+    }
+    /* Configure the local struct to expect the correct curve */
+    ret = wc_ecc_set_curve(aliceKey, 32, -1);
     if (ret != 0) {
         printf("Failed to wc_ecc_set_curve %d\n", ret);
         goto exit;
     }
 
-    /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPrivBob);
-    if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
-        goto exit;
-    }
-    /* open the first public ecc key */
-    ret = keyFd = open(pubKeyFileAlice, O_RDONLY, 0);
-    if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileAlice, ret);
-        goto exit;
-    }
 
-    /* read the first public key to local buffer */
+    /* Now we can do the same procedure for Bob's keypair */
+    
+    /* Open Bob's keypair file and read it into a local buffer */
+    ret = keyFd = open(keyFileBob, O_RDONLY, 0);
+    if (ret < 0) {
+        printf("Failed to open %s %d\n", keyFileBob, ret);
+        goto exit;
+    }
     ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
     if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileAlice, ret);
+        printf("Failed to read %s %d\n", keyFileBob, ret);
         close(keyFd);
         goto exit;
     }
     close(keyFd);
-
-    /* cache the key in the HSM, get HSM assigned keyId */
+    /* Cache the key in the HSM, get HSM assigned keyId */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPubAlice);
+        strlen(keyLabel), keyBuf, keySz, &keyIdBob);
     if (ret != 0) {
         printf("Failed to wh_Client_KeyCache %d\n", ret);
         goto exit;
     }
 
-    /* initialize the public key */
-    ret = wc_ecc_init_ex(eccPublic, NULL, WH_DEV_ID);
+    /* Initialize the local wolfCrypt struct, and configure it to use the cached
+     * key */
+    ret = wc_ecc_init_ex(bobKey, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wc_ecc_init_ex %d\n", ret);
         goto exit;
     }
-
-    /* set the curveId by size */
-    ret = wc_ecc_set_curve(eccPublic, 32, -1);
+    ret = wh_Client_EccSetKeyId(bobKey, keyIdBob);
+    if (ret != 0) {
+        printf("Failed to wh_Client_EccSetKeyId %d\n", ret);
+        goto exit;
+    }
+    /* Configure the local struct to expect the correct curve */
+    ret = wc_ecc_set_curve(bobKey, 32, -1);
     if (ret != 0) {
         printf("Failed to wc_ecc_set_curve %d\n", ret);
         goto exit;
     }
 
-    /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPubAlice);
-    if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
-        goto exit;
-    }
-
-    /* generate the shared secret from the first perspective */
+    /* Generate a 32-byte shared secret from Alice's perspective */
     outLen = 32;
-    ret = wc_ecc_shared_secret(eccPrivate, eccPublic, (byte*)sharedOne,
+    ret = wc_ecc_shared_secret(aliceKey, bobKey, (byte*)sharedOne,
         (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
     }
 
-    /* sign the plaintext with the first private key */
-    sigLen = sizeof(signature);
-    ret = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
-        (word32*)&sigLen, rng, eccPrivate);
-    if (ret != 0) {
-        printf("Failed to wc_ecc_sign_hash %d\n", ret);
-        goto exit;
-    }
-
-    /* free the key structs */
-    wc_ecc_free(eccPrivate);
-    wc_ecc_free(eccPublic);
-
-    /* open the second private ecc key */
-    ret = keyFd = open(privKeyFileAlice, O_RDONLY, 0);
-    if (ret < 0) {
-        printf("Failed to open %s %d\n", privKeyFileAlice, ret);
-        goto exit;
-    }
-
-    /* read the second private key to local buffer */
-    ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
-    if (ret < 0) {
-        printf("Failed to read %s %d\n", privKeyFileAlice, ret);
-        close(keyFd);
-        goto exit;
-    }
-    close(keyFd);
-
-    /* cache the key in the HSM, get HSM assigned keyId */
-    ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPrivAlice);
-    if (ret != 0) {
-        printf("Failed to wh_Client_KeyCache %d\n", ret);
-        goto exit;
-    }
-
-    /* initialize the private key */
-    ret = wc_ecc_init_ex(eccPrivate, NULL, WH_DEV_ID);
-    if (ret != 0) {
-        printf("Failed to wc_ecc_init_ex %d\n", ret);
-        goto exit;
-    }
-
-    /* set the curveId by size */
-    ret = wc_ecc_set_curve(eccPrivate, 32, -1);
-    if (ret != 0) {
-        printf("Failed to wc_ecc_set_curve %d\n", ret);
-        goto exit;
-    }
-
-    /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPrivate, keyIdPrivAlice);
-    if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
-        goto exit;
-    }
-
-    /* open the second public ecc key */
-    ret = keyFd = open(pubKeyFileBob, O_RDONLY, 0);
-    if (ret < 0) {
-        printf("Failed to open %s %d\n", pubKeyFileBob, ret);
-        goto exit;
-    }
-
-    /* read the second public key to local buffer */
-    ret = keySz = read(keyFd, keyBuf, sizeof(keyBuf));
-    if (ret < 0) {
-        printf("Failed to read %s %d\n", pubKeyFileBob, ret);
-        close(keyFd);
-        goto exit;
-    }
-    close(keyFd);
-
-    /* cache the key in the HSM, get HSM assigned keyId */
-    ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
-        strlen(keyLabel), keyBuf, keySz, &keyIdPubBob);
-    if (ret != 0) {
-        printf("Failed to wh_Client_KeyCache %d\n", ret);
-        goto exit;
-    }
-
-    /* initialize the public key */
-    ret = wc_ecc_init_ex(eccPublic, NULL, WH_DEV_ID);
-    if (ret != 0) {
-        printf("Failed to wc_ecc_init_ex %d\n", ret);
-        goto exit;
-    }
-
-    /* set the curveId by size */
-    ret = wc_ecc_set_curve(eccPublic, 32, -1);
-    if (ret != 0) {
-        printf("Failed to wc_ecc_set_curve %d\n", ret);
-        goto exit;
-    }
-
-    /* set the assigned keyId */
-    ret = wh_Client_SetKeyIdEcc(eccPublic, keyIdPubBob);
-    if (ret != 0) {
-        printf("Failed to wh_Client_SetKeyIdEcc %d\n", ret);
-        goto exit;
-    }
-
-    /* generated the shared secret from the second perspective */
-    ret = wc_ecc_shared_secret(eccPrivate, eccPublic, (byte*)sharedTwo,
+    /* Generate a 32-byte shared secret from Bob's perspective */
+    outLen = 32;
+    ret = wc_ecc_shared_secret(bobKey, aliceKey, (byte*)sharedTwo,
         (word32*)&outLen);
     if (ret != 0) {
         printf("Failed to wc_ecc_shared_secret %d\n", ret);
         goto exit;
     }
 
-    /* compare the shared secrets */
+    /* Compare the shared secrets, they should match */
     if (memcmp(sharedOne, sharedTwo, outLen) != 0) {
         printf("ECC shared secrets don't match with imported keys\n");
         ret = -1;
@@ -849,9 +742,21 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
         printf("ECC shared secrets match with imported keys\n");
     }
 
-    /* verify the hash */
+    /* Sign the plaintext with Alice's private key */
+    sigLen = sizeof(signature);
+    ret = wc_ecc_sign_hash(message, sizeof(message), (void*)signature,
+        (word32*)&sigLen, rng, aliceKey);
+    if (ret != 0) {
+        printf("Failed to wc_ecc_sign_hash %d\n", ret);
+        goto exit;
+    }
+
+    /* Verify the hash with Alice's public key. Note that the key cached on the
+     * HSM contains both public and private parts. In a real scenario, the
+     * signing and verifying would occur at separate times, and only the public
+     * key would be distributed */
     ret = wc_ecc_verify_hash((void*)signature, sigLen, (void*)message,
-        sizeof(message), &res, eccPublic);
+        sizeof(message), &res, aliceKey);
     if (ret != 0) {
         printf("Failed to wc_ecc_verify_hash %d\n", ret);
         goto exit;
@@ -865,13 +770,15 @@ int wh_DemoClient_CryptoEccImport(whClientContext* clientContext)
         goto exit;
     }
 exit:
-    /* free the key structs */
-    wc_ecc_free(eccPrivate);
-    wc_ecc_free(eccPublic);
-    /* free rng */
+    /* Free the key structs */
+    (void)wc_ecc_free(aliceKey);
+    (void)wc_ecc_free(bobKey);
+    /* Free the rng */
     (void)wc_FreeRng(rng);
-    if (keyIdPrivBob != WH_KEYID_ERASED) {
-        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPrivBob);
+
+    /* (Optional) evict the keys from the HSM cache */
+    if (keyIdBob != WH_KEYID_ERASED) {
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdBob);
         if (evictRet != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
             if (ret == 0) {
@@ -879,8 +786,8 @@ exit:
             }
         }
     }
-    if (keyIdPubAlice != WH_KEYID_ERASED) {
-        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPubAlice);
+    if (keyIdAlice != WH_KEYID_ERASED) {
+        int evictRet = wh_Client_KeyEvict(clientContext, keyIdAlice);
         if (evictRet != 0) {
             printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
             if (ret == 0) {
@@ -888,29 +795,17 @@ exit:
             }
         }
     }
-    if (keyIdPrivAlice != WH_KEYID_ERASED) {
-        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPrivAlice);
-        if (evictRet != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
-            if (ret == 0) {
-                ret = evictRet;
-            }
-        }
-    }
-    if (keyIdPubBob != WH_KEYID_ERASED) {
-        int evictRet = wh_Client_KeyEvict(clientContext, keyIdPubBob);
-        if (evictRet != 0) {
-            printf("Failed to wh_Client_KeyEvict %d\n", evictRet);
-            if (ret == 0) {
-                ret = evictRet;
-            }
-        }
-    }
+
     return ret;
 }
 #endif /* HAVE_ECC */
 
 #if !defined(NO_AES) && defined(HAVE_AES_CBC)
+/*
+ * Demonstrates AES CBC encryption and decryption using an ephemeral key.
+ * Keys are imported and cached when requested for use, then evicted from the
+ * cache immediately after use.
+ */
 int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
 {
     int ret = 0;
@@ -970,6 +865,11 @@ int wh_DemoClient_CryptoAesCbc(whClientContext* clientContext)
     return ret;
 }
 
+/*
+ * Demonstrates AES CBC encryption and decryption using an key cached on the HSM.
+ * Once cached, the key is referred to by keyId on the client and not resident
+ * in the local wolfCrypt struct.
+ */
 int wh_DemoClient_CryptoAesCbcImport(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1048,6 +948,11 @@ exit:
 #endif /* !NO_AES && HAVE_AES_CBC*/
 
 #if !defined(NO_AES) && defined(HAVE_AESGCM)
+/*
+ * Demonstrates AES GCM encryption and decryption using an ephemeral key.
+ * Keys are imported and cached when requested for use, then evicted from the
+ * cache immediately after use.
+ */
 int wh_DemoClient_CryptoAesGcm(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1102,6 +1007,11 @@ exit:
     return ret;
 }
 
+/*
+ * Demonstrates AES GCM encryption and decryption using an key cached on the HSM.
+ * Once cached, the key is referred to by keyId on the client and not resident
+ * in the local wolfCrypt struct.
+ */
 int wh_DemoClient_CryptoAesGcmImport(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1188,6 +1098,11 @@ exit:
 #endif /* !NOAES && HAVE_ASEGCM */
 
 #if defined(WOLFSSL_CMAC) && !defined(NO_AES)
+/*
+ * Demonstrates CMAC verification using an ephemeral key.
+ * Keys are imported and cached when requested for use, then evicted from the
+ * cache immediately after use.
+ */
 int wh_DemoClient_CryptoCmac(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1234,6 +1149,11 @@ exit:
     return ret;
 }
 
+/*
+ * Demonstrates CMAC verification using an key cached on the HSM. Once cached,
+ * the key is referred to by keyId on the client and not resident in the local
+ * wolfCrypt struct.
+ */
 int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
 {
     int ret = 0;
@@ -1313,6 +1233,11 @@ exit:
     return ret;
 }
 
+/*
+ * Demonstrates CMAC generation and verification with the one-shot API using an
+ * key cached on the HSM. Once cached, the key is referred to by keyId on the
+ * client and not resident in the local wolfCrypt struct.
+ */
 int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
 {
     int ret = 0;
