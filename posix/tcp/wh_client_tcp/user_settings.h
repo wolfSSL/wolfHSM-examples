@@ -32,8 +32,5 @@
 #include <strings.h>
 
 
-#endif
 
-
-
-#endif
+#endif /* USER_SETTINGS_H_ */
