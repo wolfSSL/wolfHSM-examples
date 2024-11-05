@@ -131,7 +131,7 @@ int wh_DemoClient_CryptoRsaImport(whClientContext* clientContext)
     int        keySz;
     int        needEvict     = 0;
     whKeyId    keyId         = WH_KEYID_ERASED;
-    char       keyFile[]     = "../../../demo/certs/ca-key.der";
+    char       keyFile[]     = "../../../demo/certs/rsa-2048-key.der";
     const char plainString[] = "The quick brown fox jumps over the lazy dog.";
     char       keyLabel[]    = "baby's first key";
     uint8_t    keyBuf[2048];

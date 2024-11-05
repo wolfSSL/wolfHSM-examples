@@ -23,7 +23,6 @@
 #define WOLFSSL_AES_DIRECT
 #define WOLFSSL_CMAC
 
-
 /* Include to ensure clock_gettime is declared for benchmark.c */
 #include <time.h>
 /* Include to support strcasecmp with POSIX build */
