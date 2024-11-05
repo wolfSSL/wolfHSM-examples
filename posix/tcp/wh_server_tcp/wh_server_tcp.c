@@ -6,11 +6,11 @@
 #include <stdio.h>  /* For printf */
 #include <stdlib.h> /* For atoi */
 #include <string.h> /* For memset, memcpy, strcmp */
-#include <unistd.h> /* For sleep */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <unistd.h> /* for read/close */
+#include <time.h> /* For nanosleep */
 
 #include "wolfhsm/wh_error.h"
 #include "wolfhsm/wh_comm.h"
@@ -21,14 +21,23 @@
 #include "wolfhsm/wh_nvm.h"
 #include "wolfhsm/wh_nvm_flash.h"
 #include "wolfhsm/wh_flash_ramsim.h"
+
 #include "port/posix/posix_transport_tcp.h"
 
 /** Local declarations */
 static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
                          int clientId);
 
+static void sleepMs(long milliseconds)
+{
+    struct timespec req;
+    req.tv_sec  = milliseconds / 1000;
+    req.tv_nsec = (milliseconds % 1000) * 1000000;
+    nanosleep(&req, NULL);
+}
+
 enum {
-    ONE_MS         = 1000,
+    ONE_MS = 1,
     FLASH_RAM_SIZE = 1024 * 1024,
 };
 
@@ -132,7 +141,7 @@ static int wh_ServerTask(void* cf, const char* keyFilePath, int keyId,
         while (1) {
             ret = wh_Server_HandleRequestMessage(server);
             if (ret == WH_ERROR_NOTREADY) {
-                usleep(ONE_MS);
+                sleepMs(ONE_MS);
             }
             else if (ret != WH_ERROR_OK) {
                 printf("Failed to wh_Server_HandleRequestMessage: %d\n", ret);
@@ -277,6 +286,17 @@ int main(int argc, char** argv)
     }
 
     rc = wh_ServerTask(s_conf, keyFilePath, keyId, clientId);
+
+    rc = wc_FreeRng(crypto->rng);
+    if (rc != 0) {
+        printf("Failed to wc_FreeRng: %d\n", rc);
+        return rc;
+    }
+    rc = wolfCrypt_Cleanup();
+    if (rc != 0) {
+        printf("Failed to wolfCrypt_Cleanup: %d\n", rc);
+        return rc;
+    }
 
     return rc;
 }

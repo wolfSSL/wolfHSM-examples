@@ -37,12 +37,15 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#ifndef NO_AES
     rc = wh_DemoClient_KeystoreAes(clientContext);
     if (rc != 0) {
         return rc;
     }
+#endif
 
-    /* Crypto demos */
+    /**Crypto demos */
+#ifndef NO_RSA
     rc = wh_DemoClient_CryptoRsa(clientContext);
     if (rc != 0) {
         return rc;
@@ -52,7 +55,9 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#endif /* !NO_RSA */
 
+#ifdef HAVE_CURVE25519
     rc = wh_DemoClient_CryptoCurve25519(clientContext);
     if (rc != 0) {
         return rc;
@@ -62,7 +67,9 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#endif /* HAVE_CURVE25519 */
 
+#ifdef HAVE_ECC
     rc = wh_DemoClient_CryptoEcc(clientContext);
     if (rc != 0) {
         return rc;
@@ -72,7 +79,9 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#endif /* HAVE_ECC */
 
+#if !defined(NO_AES) && defined(HAVE_AES_CBC)
     rc = wh_DemoClient_CryptoAesCbc(clientContext);
     if (rc != 0) {
         return rc;
@@ -82,7 +91,9 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#endif /* !NO_AES && HAVE_AES_CBC */
 
+    #if !defined(NO_AES) && defined(HAVE_AESGCM)
     rc = wh_DemoClient_CryptoAesGcm(clientContext);
     if (rc != 0) {
         return rc;
@@ -92,7 +103,9 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#endif /* !NO_AES && HAVE_AESGCM */
 
+#if defined(WOLFSSL_CMAC)
     rc = wh_DemoClient_CryptoCmac(clientContext);
     if (rc != 0) {
         return rc;
@@ -107,6 +120,7 @@ int wh_DemoClient_All(whClientContext* clientContext)
     if (rc != 0) {
         return rc;
     }
+#endif /* WOLFSSL_CMAC */
 
     return rc;
 }

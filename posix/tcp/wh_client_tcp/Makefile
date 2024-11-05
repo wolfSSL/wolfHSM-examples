@@ -19,15 +19,15 @@ INC = -I$(WOLFHSM_DIR) \
       -I$(WOLFHSM_CLIENT_DEMO_DIR)
 
 # Defines
-DEF = -DWOLFSSL_USER_SETTINGS -D_GNUC_
+DEF = -DWOLFSSL_USER_SETTINGS -D WOLFHSM_CFG -D_GNUC_
 
 # Architecture
 ARCHFLAGS ?=
 
 # Compiler and linker flags
 ASFLAGS ?= $(ARCHFLAGS)
-CFLAGS_EXTRA ?= -Wno-cpp
-CFLAGS ?= $(ARCHFLAGS) -std=c99 -Wall $(CFLAGS_EXTRA)
+CFLAGS_EXTRA ?=
+CFLAGS ?= $(ARCHFLAGS) -Wno-cpp -std=c99 -Wall -Werror $(CFLAGS_EXTRA)
 LDFLAGS ?= $(ARCHFLAGS)
 
 # LD: generate map
@@ -63,7 +63,7 @@ SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/test/*.c)
 SRC_C += $(wildcard $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.c)
 
 #wolfSSL source files
-SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
+#SRC_C += $(wildcard $(WOLFSSL_DIR)/src/*.c)
 
 # wolfHSM source files
 SRC_C += $(wildcard $(WOLFHSM_DIR)/src/*.c)

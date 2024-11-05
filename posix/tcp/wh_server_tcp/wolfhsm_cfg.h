@@ -28,7 +28,6 @@
 /** wolfHSM settings.  Simple overrides to show they work */
 /* #define WOLFHSM_CFG_NO_CRYPTO */
 #define WOLFHSM_CFG_SHE_EXTENSION
-
 #define WOLFHSM_CFG_COMM_DATA_LEN 1280
 
 #define WOLFHSM_CFG_NVM_OBJECT_COUNT 32

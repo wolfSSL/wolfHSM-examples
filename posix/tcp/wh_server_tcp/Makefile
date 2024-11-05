@@ -17,15 +17,15 @@ INC = -I$(WOLFHSM_DIR) \
       -I$(WOLFSSL_DIR) \
 
 # Defines
-DEF = -DWOLFSSL_USER_SETTINGS -D_GNUC_ -DWOLFHSM_CFG
+DEF = -DWOLFSSL_USER_SETTINGS -D_GNUC_ -DWOLFHSM_CFG -D_POSIX_C_SOURCE=200809L
  
 # Architecture
 ARCHFLAGS ?= 
 
 # Compiler and linker flags
 ASFLAGS ?= $(ARCHFLAGS)
-CFLAGS_EXTRA ?= -Wno-cpp
-CFLAGS ?= $(ARCHFLAGS) -std=c99 -Wall $(CFLAGS_EXTRA)
+CFLAGS_EXTRA ?=
+CFLAGS ?= $(ARCHFLAGS) -Wno-cpp -std=c99 -Wall -Werror $(CFLAGS_EXTRA)
 LDFLAGS ?= $(ARCHFLAGS)
 
 # LD: generate map
