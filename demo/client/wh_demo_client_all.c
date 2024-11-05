@@ -22,13 +22,13 @@ int wh_DemoClient_All(whClientContext* clientContext)
             return rc;
     }
 #endif
-    /** NVM demos */
+    /* NVM demos */
     rc = wh_DemoClient_Nvm(clientContext);
     if (rc != 0) {
         return rc;
     }
 
-    /** Keystore demos */
+    /* Keystore demos */
     rc = wh_DemoClient_KeystoreBasic(clientContext);
     if (rc != 0) {
         return rc;
@@ -44,7 +44,7 @@ int wh_DemoClient_All(whClientContext* clientContext)
     }
 #endif
 
-    /** Crypto demos */
+    /**Crypto demos */
 #ifndef NO_RSA
     rc = wh_DemoClient_CryptoRsa(clientContext);
     if (rc != 0) {

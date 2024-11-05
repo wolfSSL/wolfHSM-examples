@@ -53,7 +53,7 @@ int wh_DemoClient_KeystoreCommitKey(whClientContext* clientContext)
 {
     int      ret;
     uint16_t keyId                      = WH_KEYID_ERASED;
-    uint8_t  key[               ]       = "0123456789abcdef";
+    uint8_t  key[]                      = "0123456789abcdef";
     uint8_t  label[]                    = "my secret key";
     uint8_t  exportKey[sizeof(key)]     = {0};
     uint8_t  exportLabel[sizeof(label)] = {0};
