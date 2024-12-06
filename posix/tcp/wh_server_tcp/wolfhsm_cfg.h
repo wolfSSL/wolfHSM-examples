@@ -26,9 +26,11 @@
 #define WOLFHSM_CFG_H_
 
 /** wolfHSM settings.  Simple overrides to show they work */
-/* #define WOLFHSM_CFG_NO_CRYPTO */
+
 #define WOLFHSM_CFG_SHE_EXTENSION
-#define WOLFHSM_CFG_COMM_DATA_LEN 1280
+
+/* Large enough for ML-DSA level 5 key */
+ #define WOLFHSM_CFG_COMM_DATA_LEN 5000
 
 #define WOLFHSM_CFG_NVM_OBJECT_COUNT 32
 #define WOLFHSM_CFG_SERVER_KEYCACHE_COUNT 10

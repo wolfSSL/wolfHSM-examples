@@ -19,7 +19,11 @@
 #define HAVE_WC_INTROSPECTION
 #define WOLFSSL_IGNORE_FILE_WARN
 
+/* Define the following to remove dynamic memory allocation
+ * Note: This is incompatible with ML-DSA, so OFF by default */
+#if 0
 #define WOLFSSL_NO_MALLOC
+#endif
 
 /* Hardening options */
 #define TFM_TIMING_RESISTANT
@@ -59,10 +63,34 @@
 /* Curve25519 Options */
 #define HAVE_CURVE25519
 
+/* AES options */
 #define HAVE_AESGCM
 #define HAVE_AES_ECB
 #define WOLFSSL_AES_DIRECT
 #define WOLFSSL_CMAC
+
+/* Dilithium Options */
+#define HAVE_DILITHIUM
+#define WOLFSSL_WC_DILITHIUM /* use wolfCrypt implementation, not libOQS */
+#define WOLFSSL_SHA3
+#define WOLFSSL_SHAKE128
+#define WOLFSSL_SHAKE256
+
+/* The following options can be individually controlled to customize the
+ * ML-DSA configuration */
+#if 0
+#define WOLFSSL_DILITHIUM_VERIFY_ONLY
+#endif
+#if 0
+#define WOLFSSL_DILITHIUM_NO_VERIFY
+#endif
+#if 0
+#define WOLFSSL_DILITHIUM_NO_SIGN
+#endif
+#if 0
+#define WOLFSSL_DILITHIUM_NO_MAKE_KEY
+#endif
+
 
 /* Include to support strcasecmp with POSIX build */
 #include <strings.h>
