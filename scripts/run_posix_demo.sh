@@ -124,17 +124,27 @@ rm -f server.log
 
 # Start server from its directory
 echo "Starting server: ./$(basename "$SERVER_FULL_PATH")"
-LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+echo "Library paths:"
+ls -l "$WOLFSSL_DIR"
+ls -l "$WOLFHSM_DIR"
+
+# Start server with library path and debug output
+echo "Starting server with environment:"
+env | grep -E "WOLF|LD|PATH"
+LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" ldd ./$(basename "$SERVER_FULL_PATH")
+LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" LD_DEBUG=libs,files ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
-sleep 2
+sleep 5
 
 # Check initial server output
 if [ -f server.log ]; then
     echo "Initial server output:"
     cat server.log
     ls -la data/
+    echo "Server process info:"
+    ps -p $SERVER_PID -f || true
 fi
 
 # Check server process
