@@ -39,8 +39,6 @@ jobs:
       run: |
         chmod +x scripts/run_posix_demo.sh
         cd posix/tcp/wh_server_tcp
-        export WOLFSSL_DIR=../../../wolfssl
-        export WOLFHSM_DIR=../../../wolfhsm
-        ../../../scripts/run_posix_demo.sh
+        WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm ../../../scripts/run_posix_demo.sh
 
 
