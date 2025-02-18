@@ -99,7 +99,7 @@ echo "Server PID: $SERVER_PID"
 # Check if server process is still running and wait for initialization
 echo "Waiting for server to initialize..."
 while ! grep -q "Waiting for connection\|Server connected" "$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
-    printf "Checking server status... %d/%d seconds\r" $COUNTER $TIMEOUT_SECS
+    printf "Checking server status... %d/%d seconds" $COUNTER $TIMEOUT_SECS
 
     # Check if server process is still running
     if ! kill -0 $SERVER_PID 2>/dev/null; then
