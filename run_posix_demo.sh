@@ -25,7 +25,7 @@ trap cleanup EXIT
 # Build server
 echo "Building server..."
 cd "$SERVER_DIR"
-make clean && make
+make clean && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
 if [ ! -f "$SERVER_BIN" ]; then
     echo "Error: Server build failed"
     exit 1
@@ -35,7 +35,7 @@ cd ../../../
 # Build client
 echo "Building client..."
 cd "$CLIENT_DIR"
-make clean && make
+make clean && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
 if [ ! -f "$CLIENT_BIN" ]; then
     echo "Error: Client build failed"
     exit 1
