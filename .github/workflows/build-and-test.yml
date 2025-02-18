@@ -39,6 +39,6 @@ jobs:
       run: |
         chmod +x scripts/run_posix_demo.sh
         cd posix/tcp/wh_server_tcp
-        ../../scripts/run_posix_demo.sh
+        ../../../scripts/run_posix_demo.sh
 
 
