@@ -74,8 +74,9 @@ fi
 
 echo "Running server from: $SERVER_FULL_PATH"
 echo "Initializing wolfCrypt and starting server..."
-# Use a temporary file to capture PID while still using tee
-"$SERVER_FULL_PATH" > >(tee "$SERVER_BIN.log") 2>&1 & SERVER_PID=$!
+# Start server and capture output
+exec 3>&1
+SERVER_PID=$(($SERVER_FULL_PATH 2>&1 | tee "$SERVER_BIN.log" >&3 & echo $!))
 
 # Give wolfCrypt time to initialize
 sleep 5
