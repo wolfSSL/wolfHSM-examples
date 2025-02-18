@@ -90,12 +90,21 @@ echo "Server binary permissions:"
 ls -l "$SERVER_FULL_PATH"
 echo "Server binary dependencies:"
 ldd "$SERVER_FULL_PATH"
+echo "Environment variables:"
+env | grep -E "WOLF|PATH"
 
+# Start server with debug output
 "$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
 sleep 2
+
+# Check if server process is still running and show process info
+if kill -0 $SERVER_PID 2>/dev/null; then
+    echo "Server process info:"
+    ps -p $SERVER_PID -f
+fi
 
 # Check if server process is still running
 if ! kill -0 $SERVER_PID 2>/dev/null; then
