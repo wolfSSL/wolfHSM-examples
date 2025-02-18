@@ -30,7 +30,7 @@ jobs:
       run: |
         cd wolfssl
         ./autogen.sh
-        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7
+        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng
         make
         sudo make install
         sudo ldconfig
