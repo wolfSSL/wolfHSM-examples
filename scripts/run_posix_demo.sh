@@ -103,7 +103,7 @@ while ! grep -q "Waiting for connection" "$SERVER_BIN.log" 2>/dev/null && [ $COU
         cat "$SERVER_BIN.log"
     fi
     # Check for initialization errors
-    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null; then
+    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$SERVER_BIN.log" 2>/dev/null; then
         echo "Server initialization failed:"
         cat "$SERVER_DIR/$SERVER_BIN.log"
         exit 1
