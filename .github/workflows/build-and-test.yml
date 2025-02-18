@@ -21,12 +21,28 @@ jobs:
         repository: wolfssl/wolfssl
         path: wolfssl
 
-    # pull and build wolhsm
+    - name: Build wolfssl
+      run: |
+        cd wolfssl
+        ./autogen.sh
+        ./configure --enable-all
+        make -j
+        cd ..
+
+    # pull and build wolfhsm
     - name: Checkout wolfhsm
       uses: actions/checkout@master
       with:
         repository: wolfssl/wolfhsm
         path: wolfhsm
+
+    - name: Build wolfhsm
+      run: |
+        cd wolfhsm
+        ./autogen.sh
+        ./configure --with-wolfssl=${{ github.workspace }}/wolfssl
+        make -j
+        cd ..
 
     # Run POSIX demo (builds and tests server/client)
     - name: Run POSIX demo
