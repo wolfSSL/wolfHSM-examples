@@ -30,8 +30,10 @@ jobs:
       run: |
         cd wolfssl
         ./autogen.sh
-        ./configure --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-cryptocb --enable-aescfb
+        ./configure --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-cryptocb --enable-aescfb --enable-debug
         make
+        sudo make install
+        sudo ldconfig
         cd ..
 
     # pull and build wolfhsm
@@ -47,6 +49,8 @@ jobs:
         ./autogen.sh
         ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug
         make
+        sudo make install
+        sudo ldconfig
         cd ..
 
     # Run POSIX demo (builds and tests server/client)
