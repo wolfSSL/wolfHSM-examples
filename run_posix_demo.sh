@@ -82,6 +82,8 @@ done
 
 if [ $COUNTER -ge $TIMEOUT_SECS ]; then
     echo "Error: Server failed to start within $TIMEOUT_SECS seconds"
+    echo "Server log contents:"
+    cat "$SERVER_DIR/$SERVER_BIN.log"
     exit 1
 fi
 
