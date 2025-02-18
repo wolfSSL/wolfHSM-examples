@@ -77,7 +77,7 @@ echo "Initializing wolfCrypt and starting server..."
 # Start server and capture output
 mkdir -p "$(dirname "$SERVER_FULL_PATH")"
 cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
-"$SERVER_FULL_PATH" > server.log 2>&1 &
+./wh_server_tcp.elf > server.log 2>&1 &
 SERVER_PID=$!
 cd - >/dev/null || exit 1
 
