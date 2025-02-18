@@ -55,19 +55,15 @@ jobs:
         sudo ldconfig
         cd ..
 
-    # Run POSIX demo (builds and tests server/client)
-    - name: Run POSIX demo
+    # Build and test POSIX examples
+    - name: Build and test POSIX examples
       run: |
-        cd posix/tcp/wh_server_tcp
-        make clean && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
-        cd ../wh_client_tcp
-        make clean && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
-        cd ../wh_server_tcp
-        ./Build/wh_server_tcp.elf &
+        ls && cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+        cd ../wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+        cd ../wh_server_tcp && ./Build/wh_server_tcp.elf &
         SERVER_PID=$!
-        sleep 2
-        cd ../wh_client_tcp
-        ./Build/wh_client_tcp.elf
+        echo "TCP_SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+        cd ../wh_client_tcp && ./Build/wh_client_tcp.elf
         kill $SERVER_PID || true
 
 
