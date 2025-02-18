@@ -55,10 +55,8 @@ jobs:
     - name: Build wolfHSM
       run: |
         cd wolfhsm
-        ./autogen.sh
-        ./configure --enable-shared --enable-debug --prefix=/usr WOLFSSL_DIR=/usr
-        make -j$(nproc)
-        sudo make install
+        make -j$(nproc) WOLFSSL_DIR=/usr
+        sudo cp -P src/libwolfhsm.* /usr/lib/
         sudo ldconfig
         cd ..
 
