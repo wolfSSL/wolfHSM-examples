@@ -48,6 +48,13 @@ jobs:
         cd posix/tcp/wh_client_tcp
         ./Build/wh_client_tcp.elf
 
+    # Build and run POSIX demo
+    - name: Run POSIX demo
+      run: |
+        export WOLFSSL_DIR=../../../wolfssl
+        export WOLFHSM_DIR=../../../wolfhsm
+        ./run_posix_demo.sh
+
     # Optional: Kill the server process if it doesn't exit on its own
     - name: Cleanup POSIX TCP server
       if: always()
