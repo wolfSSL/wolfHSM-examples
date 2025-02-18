@@ -78,14 +78,14 @@ echo "Waiting for server to start..."
 COUNTER=0
 
 # Wait for server to be ready
-while ! grep -q "Waiting for connection\|Server connected\|wolfHSM Server" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+while ! grep -q "Waiting for connection" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     # Show server output for debugging
     if [ -f "$SERVER_DIR/$SERVER_BIN.log" ]; then
         echo "Server output (waiting for startup):"
         cat "$SERVER_DIR/$SERVER_BIN.log"
     fi
     # Check for initialization errors
-    if grep -q "Failed to\|Error:" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null; then
+    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null; then
         echo "Server initialization failed:"
         cat "$SERVER_DIR/$SERVER_BIN.log"
         exit 1
