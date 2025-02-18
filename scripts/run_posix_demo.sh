@@ -85,11 +85,12 @@ mkdir -p "$SERVER_DIR/Build"
 cd "$SERVER_DIR/Build" || exit 1
 
 # Start server with debug output
-"$SERVER_FULL_PATH" > server.log 2>&1 &
+echo "Starting server in directory: $(pwd)"
+strace "$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
-sleep 1
+sleep 2
 
 # Check if server process is still running
 if ! kill -0 $SERVER_PID 2>/dev/null; then
@@ -99,6 +100,12 @@ if ! kill -0 $SERVER_PID 2>/dev/null; then
         cat server.log
     fi
     exit 1
+fi
+
+# Print initial server output for debugging
+if [ -f server.log ]; then
+    echo "Initial server output:"
+    cat server.log
 fi
 
 cd - >/dev/null || exit 1
