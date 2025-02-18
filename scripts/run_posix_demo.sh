@@ -104,11 +104,11 @@ touch server.log
 chmod 666 server.log
 
 # Start server with debug output
-"$SERVER_FULL_PATH" > server.log 2>&1 &
+"$SERVER_FULL_PATH" --debug > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
-sleep 2
+sleep 5
 
 # Check if server process is still running and show process info
 if kill -0 $SERVER_PID 2>/dev/null; then
