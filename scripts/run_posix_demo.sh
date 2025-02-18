@@ -172,11 +172,10 @@ fi
 
 # Run client
 echo "Running client..."
-"$CLIENT_DIR/$CLIENT_BIN"
-CLIENT_EXIT=$?
-
-if [ $CLIENT_EXIT -ne 0 ]; then
-    echo "Error: Client failed with exit code $CLIENT_EXIT"
+if ! "$CLIENT_DIR/$CLIENT_BIN"; then
+    echo "Error: Client failed to run"
+    echo "Server log contents:"
+    cat "$SERVER_BIN.log"
     exit 1
 fi
 
