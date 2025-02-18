@@ -84,7 +84,7 @@ echo "Server PID: $SERVER_PID"
 # Check if server process is still running
 if ! kill -0 $SERVER_PID 2>/dev/null; then
     echo "Error: Server process died during startup"
-    if [ -f "$SERVER_DIR/$SERVER_BIN.log" ]; then
+    if [ -f "$SERVER_BIN.log" ]; then
         echo "Server log contents:"
         cat "$SERVER_BIN.log"
     fi
