@@ -59,11 +59,19 @@ cd ../../../
 
 # Start server and redirect output to log file
 echo "Starting server..."
-"$SERVER_DIR/$SERVER_BIN" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
+SERVER_FULL_PATH="$(pwd)/$SERVER_DIR/$SERVER_BIN"
+if [ ! -x "$SERVER_FULL_PATH" ]; then
+    echo "Error: Server binary not found or not executable at $SERVER_FULL_PATH"
+    exit 1
+fi
+
+echo "Running server from: $SERVER_FULL_PATH"
+"$SERVER_FULL_PATH" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
 SERVER_PID=$!
 
 # Give the server a moment to write initial output
 sleep 1
+echo "Server PID: $SERVER_PID"
 
 # Wait for server to be ready
 echo "Waiting for server to start..."
