@@ -30,6 +30,9 @@ SERVER_DIR="."
 CLIENT_DIR="../wh_client_tcp"
 SERVER_BIN="Build/wh_server_tcp.elf"
 CLIENT_BIN="Build/wh_client_tcp.elf"
+
+# Ensure we're in the server directory
+cd "$SERVER_DIR" || exit 1
 TIMEOUT_SECS=30  # Increased timeout for wolfCrypt initialization
 
 # Cleanup function
