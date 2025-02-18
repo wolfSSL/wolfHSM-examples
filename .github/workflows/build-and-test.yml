@@ -30,7 +30,7 @@ jobs:
       run: |
         cd wolfssl
         ./autogen.sh
-        CFLAGS="-DWOLFSSL_DEBUG -DDEBUG_WOLFSSL" ./configure --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-cryptocb --enable-aescfb --enable-debug --enable-harden --enable-shared
+        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb
         make
         sudo make install
         sudo ldconfig
@@ -47,7 +47,7 @@ jobs:
       run: |
         cd wolfhsm
         ./autogen.sh
-        PKG_CONFIG_PATH=${{ github.workspace }}/wolfssl/lib/pkgconfig LDFLAGS="-L${{ github.workspace }}/wolfssl/.libs" ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples
+        ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples
         make
         sudo make install
         sudo ldconfig
