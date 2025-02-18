@@ -76,8 +76,10 @@ echo "Running server from: $SERVER_FULL_PATH"
 echo "Initializing wolfCrypt and starting server..."
 # Start server and capture output
 mkdir -p "$(dirname "$SERVER_FULL_PATH")"
-"$SERVER_FULL_PATH" > "$(dirname "$SERVER_FULL_PATH")/server.log" 2>&1 &
+cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
+"$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
+cd - >/dev/null || exit 1
 
 # Initialize counter and wait for log file to be created
 COUNTER=0
