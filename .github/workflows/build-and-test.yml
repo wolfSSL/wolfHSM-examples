@@ -24,7 +24,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y autoconf automake libtool
+        sudo apt-get install -y autoconf automake libtool pkg-config
 
     - name: Build wolfssl
       run: |
