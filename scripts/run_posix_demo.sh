@@ -96,15 +96,25 @@ fi
 COUNTER=0
 echo "Server PID: $SERVER_PID"
 
-# Check if server process is still running
-if ! kill -0 $SERVER_PID 2>/dev/null; then
-    echo "Error: Server process died during startup"
-    if [ -f "$SERVER_BIN.log" ]; then
-        echo "Server log contents:"
-        cat "$SERVER_BIN.log"
+# Check if server process is still running and wait for initialization
+while ! grep -q "Waiting for connection\|Server connected" "$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+    if ! kill -0 $SERVER_PID 2>/dev/null; then
+        echo "Error: Server process died during startup"
+        if [ -f "$SERVER_BIN.log" ]; then
+            echo "Server log contents:"
+            cat "$SERVER_BIN.log"
+        fi
+        exit 1
     fi
-    exit 1
-fi
+    # Check for initialization errors
+    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$SERVER_BIN.log" 2>/dev/null; then
+        echo "Server initialization failed:"
+        cat "$SERVER_BIN.log"
+        exit 1
+    fi
+    sleep 1
+    COUNTER=$((COUNTER + 1))
+done
 
 # Wait for server to be ready
 echo "Waiting for server to start..."
