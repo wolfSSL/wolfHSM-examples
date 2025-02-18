@@ -26,11 +26,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y autoconf automake libtool pkg-config build-essential
 
+    # Build wolfSSL with required features
     - name: Build wolfssl
       run: |
         cd wolfssl
         ./autogen.sh
-        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden --enable-all
+        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden --enable-all --enable-static
         make
         sudo make install
         sudo ldconfig
@@ -43,11 +44,12 @@ jobs:
         repository: wolfssl/wolfhsm
         path: wolfhsm
 
+    # Build wolfHSM with examples enabled
     - name: Build wolfhsm
       run: |
         cd wolfhsm
         ./autogen.sh
-        ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples
+        ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples --enable-static
         make
         sudo make install
         sudo ldconfig
