@@ -59,8 +59,14 @@ jobs:
     - name: Run POSIX demo
       run: |
         chmod +x ./run_posix_demo.sh
-        export WOLFSSL_DIR=/usr/local
-        export WOLFHSM_DIR=/usr/local
-        ./run_posix_demo.sh
+        export WOLFSSL_DIR=../../../wolfssl
+        export WOLFHSM_DIR=../../../wolfhsm
+        cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
+        cd ../wh_client_tcp && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
+        cd ../wh_server_tcp && ./Build/wh_server_tcp.elf &
+        SERVER_PID=$!
+        sleep 2
+        cd ../wh_client_tcp && ./Build/wh_client_tcp.elf
+        kill $SERVER_PID || true
 
 
