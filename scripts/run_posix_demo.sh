@@ -128,11 +128,36 @@ echo "Library paths:"
 ls -l "$WOLFSSL_DIR"
 ls -l "$WOLFHSM_DIR"
 
+# Check for required libraries
+echo "Checking for required libraries..."
+WOLFSSL_LIB="$WOLFSSL_DIR/lib/libwolfssl.so"
+WOLFHSM_LIB="$WOLFHSM_DIR/lib/libwolfhsm.so"
+
+if [ ! -f "$WOLFSSL_LIB" ]; then
+    echo "Error: wolfSSL library not found at $WOLFSSL_LIB"
+    echo "wolfSSL directory contents:"
+    ls -R "$WOLFSSL_DIR"
+    exit 1
+fi
+
+if [ ! -f "$WOLFHSM_LIB" ]; then
+    echo "Error: wolfHSM library not found at $WOLFHSM_LIB"
+    echo "wolfHSM directory contents:"
+    ls -R "$WOLFHSM_DIR"
+    exit 1
+fi
+
 # Start server with library path and debug output
 echo "Starting server with environment:"
 env | grep -E "WOLF|LD|PATH"
-LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" ldd ./$(basename "$SERVER_FULL_PATH")
-LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" LD_DEBUG=libs,files ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+echo "Library dependencies:"
+LD_LIBRARY_PATH="$WOLFSSL_DIR/lib:$WOLFHSM_DIR/lib" ldd ./$(basename "$SERVER_FULL_PATH")
+
+# Start server with debug output
+echo "Starting server with libraries from:"
+echo "  wolfSSL: $WOLFSSL_LIB"
+echo "  wolfHSM: $WOLFHSM_LIB"
+LD_LIBRARY_PATH="$WOLFSSL_DIR/lib:$WOLFHSM_DIR/lib" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
