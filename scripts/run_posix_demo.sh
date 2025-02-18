@@ -108,8 +108,17 @@ echo "Starting server in directory: $(pwd)"
 echo "Server binary permissions:"
 ls -l "$SERVER_FULL_PATH"
 
+# Create required directories
+mkdir -p data
+mkdir -p keys
+
 # Start server
-"$SERVER_FULL_PATH" > server.log 2>&1 &
+echo "Starting server with working directory: $(pwd)"
+cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
+echo "Changed to server directory: $(pwd)"
+
+# Start server from its directory
+./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
@@ -124,8 +133,13 @@ fi
 # Check server process
 if ! kill -0 $SERVER_PID 2>/dev/null; then
     echo "Error: Server failed to start"
+    echo "Server log contents:"
+    cat server.log
     exit 1
 fi
+
+# Return to original directory
+cd - >/dev/null || exit 1
 
 # Check if server process is still running and show process info
 if kill -0 $SERVER_PID 2>/dev/null; then
