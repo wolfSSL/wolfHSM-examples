@@ -57,9 +57,12 @@ if [ ! -f "$CLIENT_BIN" ]; then
 fi
 cd ../../../
 
+# Create log file
+touch "$SERVER_DIR/$SERVER_BIN.log"
+
 # Start server and redirect output to log file
 echo "Starting server..."
-"$SERVER_DIR/$SERVER_BIN" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
+"$SERVER_DIR/$SERVER_BIN" > >(tee "$SERVER_DIR/$SERVER_BIN.log") 2>&1 &
 SERVER_PID=$!
 
 # Wait for server to be ready
@@ -68,9 +71,11 @@ COUNTER=0
 
 # Wait for server to be ready
 while ! grep -q "Waiting for connection\|Server connected" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
-    # Show server output for debugging
-    if [ -f "$SERVER_DIR/$SERVER_BIN.log" ]; then
-        tail -n 5 "$SERVER_DIR/$SERVER_BIN.log"
+    # Check for initialization errors
+    if grep -q "Failed to" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null; then
+        echo "Server initialization failed:"
+        cat "$SERVER_DIR/$SERVER_BIN.log"
+        exit 1
     fi
     if ! kill -0 $SERVER_PID 2>/dev/null; then
         echo "Error: Server process died"
