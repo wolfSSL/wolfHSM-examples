@@ -21,7 +21,7 @@ SERVER_DIR="posix/tcp/wh_server_tcp"
 CLIENT_DIR="posix/tcp/wh_client_tcp"
 SERVER_BIN="Build/wh_server_tcp.elf"
 CLIENT_BIN="Build/wh_client_tcp.elf"
-TIMEOUT_SECS=1
+TIMEOUT_SECS=5
 
 # Cleanup function
 cleanup() {
