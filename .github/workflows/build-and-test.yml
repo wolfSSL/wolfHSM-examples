@@ -40,6 +40,10 @@ jobs:
         chmod +x scripts/run_posix_demo.sh
         pwd
         ls -la
+        ls -la posix/tcp/wh_server_tcp/Build/
+        ls -la posix/tcp/wh_client_tcp/Build/
+        chmod +x posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf
+        chmod +x posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf
         WOLFSSL_DIR=$PWD/wolfssl WOLFHSM_DIR=$PWD/wolfhsm TERM=xterm-256color ./scripts/run_posix_demo.sh
 
 
