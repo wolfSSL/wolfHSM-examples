@@ -75,10 +75,10 @@ fi
 echo "Running server from: $SERVER_FULL_PATH"
 echo "Initializing wolfCrypt and starting server..."
 # Start server and capture output
-cd "$(dirname "$SERVER_FULL_PATH")"
+cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
 "$SERVER_FULL_PATH" > "$SERVER_BIN.log" 2>&1 &
 SERVER_PID=$!
-cd - >/dev/null
+cd - >/dev/null || exit 1
 
 # Give wolfCrypt time to initialize
 sleep 5
