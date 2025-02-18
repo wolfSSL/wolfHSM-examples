@@ -130,34 +130,47 @@ ls -l "$WOLFHSM_DIR"
 
 # Check for required libraries
 echo "Checking for required libraries..."
-WOLFSSL_LIB="$WOLFSSL_DIR/lib/libwolfssl.so"
-WOLFHSM_LIB="$WOLFHSM_DIR/lib/libwolfhsm.so"
+echo "Looking for libraries in:"
+echo "  wolfSSL: $WOLFSSL_DIR"
+echo "  wolfHSM: $WOLFHSM_DIR"
 
-if [ ! -f "$WOLFSSL_LIB" ]; then
-    echo "Error: wolfSSL library not found at $WOLFSSL_LIB"
+# Find wolfSSL library
+WOLFSSL_LIB=$(find "$WOLFSSL_DIR" -name "libwolfssl.so*" -type f | head -n 1)
+if [ -z "$WOLFSSL_LIB" ]; then
+    echo "Error: wolfSSL library not found in $WOLFSSL_DIR"
     echo "wolfSSL directory contents:"
     ls -R "$WOLFSSL_DIR"
     exit 1
 fi
 
-if [ ! -f "$WOLFHSM_LIB" ]; then
-    echo "Error: wolfHSM library not found at $WOLFHSM_LIB"
+# Find wolfHSM library
+WOLFHSM_LIB=$(find "$WOLFHSM_DIR" -name "libwolfhsm.so*" -type f | head -n 1)
+if [ -z "$WOLFHSM_LIB" ]; then
+    echo "Error: wolfHSM library not found in $WOLFHSM_DIR"
     echo "wolfHSM directory contents:"
     ls -R "$WOLFHSM_DIR"
     exit 1
 fi
 
+# Use library directories
+WOLFSSL_LIB_DIR=$(dirname "$WOLFSSL_LIB")
+WOLFHSM_LIB_DIR=$(dirname "$WOLFHSM_LIB")
+
+echo "Found libraries:"
+echo "  wolfSSL: $WOLFSSL_LIB"
+echo "  wolfHSM: $WOLFHSM_LIB"
+
 # Start server with library path and debug output
 echo "Starting server with environment:"
 env | grep -E "WOLF|LD|PATH"
 echo "Library dependencies:"
-LD_LIBRARY_PATH="$WOLFSSL_DIR/lib:$WOLFHSM_DIR/lib" ldd ./$(basename "$SERVER_FULL_PATH")
+LD_LIBRARY_PATH="$WOLFSSL_LIB_DIR:$WOLFHSM_LIB_DIR" ldd ./$(basename "$SERVER_FULL_PATH")
 
 # Start server with debug output
 echo "Starting server with libraries from:"
-echo "  wolfSSL: $WOLFSSL_LIB"
-echo "  wolfHSM: $WOLFHSM_LIB"
-LD_LIBRARY_PATH="$WOLFSSL_DIR/lib:$WOLFHSM_DIR/lib" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+echo "  wolfSSL: $WOLFSSL_LIB_DIR"
+echo "  wolfHSM: $WOLFHSM_LIB_DIR"
+LD_LIBRARY_PATH="$WOLFSSL_LIB_DIR:$WOLFHSM_LIB_DIR" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
