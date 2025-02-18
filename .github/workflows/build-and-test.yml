@@ -26,7 +26,7 @@ jobs:
         cd wolfssl
         ./autogen.sh
         ./configure --enable-all
-        make -j
+        make
         cd ..
 
     # pull and build wolfhsm
@@ -36,12 +36,17 @@ jobs:
         repository: wolfssl/wolfhsm
         path: wolfhsm
 
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y autoconf automake libtool
+
     - name: Build wolfhsm
       run: |
         cd wolfhsm
         ./autogen.sh
         ./configure --with-wolfssl=${{ github.workspace }}/wolfssl
-        make -j
+        make
         cd ..
 
     # Run POSIX demo (builds and tests server/client)
