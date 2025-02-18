@@ -24,13 +24,13 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y autoconf automake libtool pkg-config
+        sudo apt-get install -y autoconf automake libtool pkg-config build-essential
 
     - name: Build wolfssl
       run: |
         cd wolfssl
         ./autogen.sh
-        ./configure --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-cryptocb --enable-aescfb --enable-debug --enable-harden
+        CFLAGS="-DWOLFSSL_DEBUG" ./configure --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-cryptocb --enable-aescfb --enable-debug --enable-harden
         make
         sudo make install
         sudo ldconfig
