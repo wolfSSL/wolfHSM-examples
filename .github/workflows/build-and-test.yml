@@ -39,6 +39,6 @@ jobs:
       run: |
         chmod +x scripts/run_posix_demo.sh
         cd posix/tcp/wh_server_tcp
-        WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm ../../../scripts/run_posix_demo.sh
+        WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm TERM=xterm-256color ../../../scripts/run_posix_demo.sh
 
 
