@@ -94,7 +94,8 @@ echo "Environment variables:"
 env | grep -E "WOLF|PATH"
 
 # Start server with debug output
-"$SERVER_FULL_PATH" > server.log 2>&1 &
+echo "Running server command: $SERVER_FULL_PATH"
+LD_DEBUG=all "$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
@@ -104,6 +105,8 @@ sleep 2
 if kill -0 $SERVER_PID 2>/dev/null; then
     echo "Server process info:"
     ps -p $SERVER_PID -f
+    echo "Server working directory:"
+    pwdx $SERVER_PID
 fi
 
 # Check if server process is still running
