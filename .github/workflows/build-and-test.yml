@@ -30,9 +30,13 @@ jobs:
 
     # Build examples
     - name: Build POSIX TCP server
-      run: ls && cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+      run: |
+        cd posix/tcp/wh_server_tcp
+        make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm/test/Build
     - name: Build POSIX TCP client
-      run: cd posix/tcp/wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+      run: |
+        cd posix/tcp/wh_client_tcp
+        make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm/test/Build
 
     # Install build dependencies
     - name: Install dependencies
