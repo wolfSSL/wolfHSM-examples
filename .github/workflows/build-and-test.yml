@@ -34,6 +34,34 @@ jobs:
     - name: Build POSIX TCP client
       run: cd posix/tcp/wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
 
+    # Install build dependencies
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y autoconf automake libtool
+
+    # Build wolfSSL
+    - name: Build wolfSSL
+      run: |
+        cd wolfssl
+        ./autogen.sh
+        ./configure --enable-shared --enable-debug --prefix=/usr
+        make -j$(nproc)
+        sudo make install
+        sudo ldconfig
+        cd ..
+
+    # Build wolfHSM
+    - name: Build wolfHSM
+      run: |
+        cd wolfhsm
+        ./autogen.sh
+        ./configure --enable-shared --enable-debug --prefix=/usr WOLFSSL_DIR=/usr
+        make -j$(nproc)
+        sudo make install
+        sudo ldconfig
+        cd ..
+
     # Run server and client tests
     - name: Run POSIX TCP tests
       run: |
@@ -44,19 +72,7 @@ jobs:
         ls -la posix/tcp/wh_client_tcp/Build/
         chmod +x posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf
         chmod +x posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf
-        # Configure and build wolfSSL
-        cd wolfssl
-        ./autogen.sh
-        ./configure --enable-shared
-        make -j$(nproc)
-        cd ..
-        # Configure and build wolfHSM
-        cd wolfhsm
-        ./autogen.sh
-        ./configure --enable-shared WOLFSSL_DIR=$PWD/../wolfssl
-        make -j$(nproc)
-        cd ..
         # Run the demo with debug output
-        WOLFSSL_DIR=$PWD/wolfssl WOLFHSM_DIR=$PWD/wolfhsm TERM=xterm-256color LD_LIBRARY_PATH=$PWD/wolfssl/.libs:$PWD/wolfhsm/.libs ./scripts/run_posix_demo.sh
+        WOLFSSL_DIR=$PWD/wolfssl WOLFHSM_DIR=$PWD/wolfhsm TERM=xterm-256color ./scripts/run_posix_demo.sh
 
 
