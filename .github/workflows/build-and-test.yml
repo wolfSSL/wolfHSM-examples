@@ -31,7 +31,7 @@ jobs:
       run: |
         cd wolfssl
         ./autogen.sh
-        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden
+        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden --enable-static
         make
         sudo make install
         sudo ldconfig
@@ -58,15 +58,16 @@ jobs:
     # Run POSIX demo (builds and tests server/client)
     - name: Run POSIX demo
       run: |
-        chmod +x ./run_posix_demo.sh
-        export WOLFSSL_DIR=../../../wolfssl
-        export WOLFHSM_DIR=../../../wolfhsm
-        cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
-        cd ../wh_client_tcp && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
-        cd ../wh_server_tcp && ./Build/wh_server_tcp.elf &
+        cd posix/tcp/wh_server_tcp
+        make clean && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+        cd ../wh_client_tcp
+        make clean && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+        cd ../wh_server_tcp
+        ./Build/wh_server_tcp.elf &
         SERVER_PID=$!
         sleep 2
-        cd ../wh_client_tcp && ./Build/wh_client_tcp.elf
+        cd ../wh_client_tcp
+        ./Build/wh_client_tcp.elf
         kill $SERVER_PID || true
 
 
