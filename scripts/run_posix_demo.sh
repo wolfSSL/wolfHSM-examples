@@ -37,7 +37,7 @@ SERVER_DIR="."
 CLIENT_DIR="../wh_client_tcp"
 SERVER_BIN="./Build/wh_server_tcp.elf"
 CLIENT_BIN="../wh_client_tcp/Build/wh_client_tcp.elf"
-TIMEOUT_SECS=30  # Increased timeout for wolfCrypt initialization
+TIMEOUT_SECS=60  # Increased timeout for wolfCrypt initialization
 
 # Cleanup function
 cleanup() {
@@ -78,7 +78,7 @@ echo "Initializing wolfCrypt and starting server..."
 SERVER_PID=$!
 
 # Give wolfCrypt time to initialize
-sleep 2
+sleep 5
 echo "Server PID: $SERVER_PID"
 
 # Check if server process is still running
