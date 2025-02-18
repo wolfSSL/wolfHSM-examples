@@ -26,8 +26,8 @@ if [ -z "$WOLFSSL_DIR" ] || [ -z "$WOLFHSM_DIR" ]; then
 fi
 
 # Configuration
-SERVER_DIR="posix/tcp/wh_server_tcp"
-CLIENT_DIR="posix/tcp/wh_client_tcp"
+SERVER_DIR="."
+CLIENT_DIR="../wh_client_tcp"
 SERVER_BIN="Build/wh_server_tcp.elf"
 CLIENT_BIN="Build/wh_client_tcp.elf"
 TIMEOUT_SECS=10  # Increased timeout for wolfCrypt initialization

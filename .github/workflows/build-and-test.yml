@@ -38,8 +38,7 @@ jobs:
     - name: Run POSIX TCP tests
       run: |
         chmod +x scripts/run_posix_demo.sh
-        export WOLFSSL_DIR=../../../wolfssl
-        export WOLFHSM_DIR=../../../wolfhsm
-        ./scripts/run_posix_demo.sh
+        cd posix/tcp/wh_server_tcp
+        ../../scripts/run_posix_demo.sh
 
 
