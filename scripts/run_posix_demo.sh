@@ -92,13 +92,14 @@ cd - >/dev/null || exit 1
 
 # Initialize counter and wait for log file to be created
 COUNTER=0
-while [ ! -f "$(dirname "$SERVER_FULL_PATH")/server.log" ] && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+LOG_FILE="$REPO_ROOT/$SERVER_DIR/Build/server.log"
+while [ ! -f "$LOG_FILE" ] && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     sleep 1
     COUNTER=$((COUNTER + 1))
 done
 
-if [ ! -f "$(dirname "$SERVER_FULL_PATH")/server.log" ]; then
-    echo "Error: Server log file not created within $TIMEOUT_SECS seconds"
+if [ ! -f "$LOG_FILE" ]; then
+    echo "Error: Server log file not created within $TIMEOUT_SECS seconds at $LOG_FILE"
     exit 1
 fi
 
@@ -108,7 +109,7 @@ echo "Server PID: $SERVER_PID"
 
 # Check if server process is still running and wait for initialization
 echo "Waiting for server to initialize..."
-while ! grep -q "Waiting for connection\|Server connected" "$(dirname "$SERVER_FULL_PATH")/server.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+while ! grep -q "Waiting for connection\|Server connected" "$LOG_FILE" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     echo "Checking server status... $COUNTER/$TIMEOUT_SECS seconds"
 
     # Check if server process is still running
@@ -122,16 +123,16 @@ while ! grep -q "Waiting for connection\|Server connected" "$(dirname "$SERVER_F
     fi
 
     # Check for initialization errors
-    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$(dirname "$SERVER_FULL_PATH")/server.log" 2>/dev/null; then
+    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$LOG_FILE" 2>/dev/null; then
         echo -e "\nServer initialization failed:"
-        cat "$(dirname "$SERVER_FULL_PATH")/server.log"
+        cat "$LOG_FILE"
         exit 1
     fi
 
     # Show current server output
-    if [ -f "$(dirname "$SERVER_FULL_PATH")/server.log" ] && [ $((COUNTER % 10)) -eq 0 ]; then
+    if [ -f "$LOG_FILE" ] && [ $((COUNTER % 10)) -eq 0 ]; then
         echo -e "\nCurrent server output at $COUNTER seconds:"
-        tail -n 5 "$(dirname "$SERVER_FULL_PATH")/server.log"
+        tail -n 5 "$LOG_FILE"
         echo "..."
     fi
 
