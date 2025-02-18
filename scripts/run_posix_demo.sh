@@ -81,8 +81,8 @@ echo "Initializing wolfCrypt and starting server..."
 
 # Create log directory and start server
 cd "$REPO_ROOT" || exit 1
-mkdir -p "$SERVER_DIR"
-cd "$SERVER_DIR" || exit 1
+mkdir -p "$SERVER_DIR/Build"
+cd "$SERVER_DIR/Build" || exit 1
 "$SERVER_FULL_PATH" > server.log 2>&1 &
 # Print server output immediately for debugging
 tail -f server.log &
