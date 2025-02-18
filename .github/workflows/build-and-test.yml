@@ -55,10 +55,11 @@ jobs:
     - name: Build wolfHSM
       run: |
         cd wolfhsm
-        make -j$(nproc) WOLFSSL_DIR=/usr
-        sudo cp -P src/libwolfhsm.* /usr/lib/
-        sudo ldconfig
-        cd ..
+        # Build test which includes all components
+        cd test
+        mkdir -p Build
+        make -j$(nproc) WOLFSSL_DIR=/usr DEBUG=1
+        cd ../..
 
     # Run server and client tests
     - name: Run POSIX TCP tests
