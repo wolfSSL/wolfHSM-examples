@@ -80,6 +80,12 @@ cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
 SERVER_PID=$!
 cd - >/dev/null || exit 1
 
+# Wait for log file to be created
+while [ ! -f "$SERVER_BIN.log" ] && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+    sleep 1
+    COUNTER=$((COUNTER + 1))
+done
+
 # Give wolfCrypt time to initialize
 sleep 5
 echo "Server PID: $SERVER_PID"
