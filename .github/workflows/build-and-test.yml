@@ -35,6 +35,7 @@ jobs:
         make
         sudo make install
         sudo ldconfig
+        ls -la /usr/local/lib/libwolfssl*
         cd ..
 
     # pull and build wolfhsm
@@ -49,7 +50,7 @@ jobs:
       run: |
         cd wolfhsm
         ./autogen.sh
-        ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples
+        PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure --with-wolfssl=/usr/local --enable-debug --enable-examples
         make
         sudo make install
         sudo ldconfig
