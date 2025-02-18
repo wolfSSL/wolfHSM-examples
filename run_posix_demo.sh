@@ -16,12 +16,21 @@
 # - 1: Error (build failure, server startup failure, or client error)
 set -e
 
+# Check required environment variables
+if [ -z "$WOLFSSL_DIR" ] || [ -z "$WOLFHSM_DIR" ]; then
+    echo "Error: WOLFSSL_DIR and WOLFHSM_DIR environment variables must be set"
+    echo "Example:"
+    echo "  export WOLFSSL_DIR=/path/to/wolfssl"
+    echo "  export WOLFHSM_DIR=/path/to/wolfhsm"
+    exit 1
+fi
+
 # Configuration
 SERVER_DIR="posix/tcp/wh_server_tcp"
 CLIENT_DIR="posix/tcp/wh_client_tcp"
 SERVER_BIN="Build/wh_server_tcp.elf"
 CLIENT_BIN="Build/wh_client_tcp.elf"
-TIMEOUT_SECS=5
+TIMEOUT_SECS=10  # Increased timeout for wolfCrypt initialization
 
 # Cleanup function
 cleanup() {
@@ -66,12 +75,23 @@ if [ ! -x "$SERVER_FULL_PATH" ]; then
 fi
 
 echo "Running server from: $SERVER_FULL_PATH"
+echo "Initializing wolfCrypt and starting server..."
 "$SERVER_FULL_PATH" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
 SERVER_PID=$!
 
-# Give the server a moment to write initial output
-sleep 1
+# Give wolfCrypt time to initialize
+sleep 2
 echo "Server PID: $SERVER_PID"
+
+# Check if server process is still running
+if ! kill -0 $SERVER_PID 2>/dev/null; then
+    echo "Error: Server process died during startup"
+    if [ -f "$SERVER_DIR/$SERVER_BIN.log" ]; then
+        echo "Server log contents:"
+        cat "$SERVER_DIR/$SERVER_BIN.log"
+    fi
+    exit 1
+fi
 
 # Wait for server to be ready
 echo "Waiting for server to start..."
