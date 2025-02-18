@@ -119,9 +119,10 @@ while ! grep -q "Waiting for connection\|Server connected" "$SERVER_BIN.log" 2>/
     fi
 
     # Show current server output
-    if [ -f "$SERVER_BIN.log" ] && [ $((COUNTER % 5)) -eq 0 ]; then
-        echo -e "\nCurrent server output:"
-        cat "$SERVER_BIN.log"
+    if [ -f "$SERVER_BIN.log" ] && [ $((COUNTER % 10)) -eq 0 ]; then
+        echo -e "\nCurrent server output at $COUNTER seconds:"
+        tail -n 5 "$SERVER_BIN.log"
+        echo "..."
     fi
 
     sleep 1
