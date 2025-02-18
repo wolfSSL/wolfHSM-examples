@@ -109,12 +109,12 @@ echo "Server binary permissions:"
 ls -l "$SERVER_FULL_PATH"
 
 # Create required directories
-mkdir -p data
-mkdir -p keys
+WORK_DIR="$(dirname "$SERVER_FULL_PATH")"
+mkdir -p "$WORK_DIR/data"
 
 # Start server
 echo "Starting server with working directory: $(pwd)"
-cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
+cd "$WORK_DIR" || exit 1
 echo "Changed to server directory: $(pwd)"
 
 # Start server from its directory
@@ -122,7 +122,7 @@ echo "Changed to server directory: $(pwd)"
 SERVER_PID=$!
 
 # Wait a moment for the process to start
-sleep 2
+sleep 5
 
 # Check initial server output
 if [ -f server.log ]; then
