@@ -66,23 +66,17 @@ fi
 
 # Start server and redirect output to log file
 echo "Starting server..."
-SERVER_FULL_PATH="$(pwd)/$SERVER_BIN"
-if [ ! -x "$SERVER_FULL_PATH" ]; then
-    echo "Error: Server binary not found or not executable at $SERVER_FULL_PATH"
+cd "$REPO_ROOT/$SERVER_DIR" || exit 1
+if [ ! -f "Build/wh_server_tcp.elf" ]; then
+    echo "Error: Server binary not found at $(pwd)/Build/wh_server_tcp.elf"
+    ls -la
+    ls -la Build/ 2>/dev/null || true
     exit 1
 fi
 
-echo "Running server from: $SERVER_FULL_PATH"
+echo "Running server from: $(pwd)/Build/wh_server_tcp.elf"
 echo "Initializing wolfCrypt and starting server..."
-# Start server and capture output
-cd "$REPO_ROOT" || exit 1
-if [ ! -f "$SERVER_BIN" ]; then
-    echo "Error: Server binary not found at $SERVER_BIN"
-    ls -la "$SERVER_DIR"
-    ls -la "$SERVER_DIR/Build/" 2>/dev/null || true
-    exit 1
-fi
-"./$SERVER_BIN" > "$SERVER_DIR/server.log" 2>&1 &
+./Build/wh_server_tcp.elf > server.log 2>&1 &
 SERVER_PID=$!
 cd - >/dev/null || exit 1
 
