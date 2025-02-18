@@ -44,6 +44,17 @@ jobs:
         ls -la posix/tcp/wh_client_tcp/Build/
         chmod +x posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf
         chmod +x posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf
+        # Configure and build wolfSSL
+        cd wolfssl
+        ./configure --enable-shared
+        make -j$(nproc)
+        cd ..
+        # Configure and build wolfHSM
+        cd wolfhsm
+        ./configure --enable-shared WOLFSSL_DIR=$PWD/../wolfssl
+        make -j$(nproc)
+        cd ..
+        # Run the demo
         WOLFSSL_DIR=$PWD/wolfssl WOLFHSM_DIR=$PWD/wolfhsm TERM=xterm-256color ./scripts/run_posix_demo.sh
 
 
