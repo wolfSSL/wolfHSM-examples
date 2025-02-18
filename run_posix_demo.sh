@@ -50,7 +50,16 @@ SERVER_PID=$!
 # Wait for server to be ready
 echo "Waiting for server to start..."
 COUNTER=0
-while ! grep -q "Waiting for connection" <(tail -f "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null) && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+# Redirect server output to log file
+"$SERVER_DIR/$SERVER_BIN" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
+SERVER_PID=$!
+
+# Wait for server to be ready
+while ! grep -q "Waiting for connection" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+    if ! kill -0 $SERVER_PID 2>/dev/null; then
+        echo "Error: Server process died"
+        exit 1
+    fi
     sleep 1
     COUNTER=$((COUNTER + 1))
 done
