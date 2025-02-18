@@ -59,8 +59,8 @@ jobs:
     - name: Run POSIX demo
       run: |
         chmod +x ./run_posix_demo.sh
-        export WOLFSSL_DIR=${{ github.workspace }}/wolfssl
-        export WOLFHSM_DIR=${{ github.workspace }}/wolfhsm
+        export WOLFSSL_DIR=/usr/local
+        export WOLFHSM_DIR=/usr/local
         ./run_posix_demo.sh
 
 
