@@ -89,7 +89,7 @@ echo "Waiting for server to start..."
 COUNTER=0
 
 # Wait for server to be ready
-while ! grep -q "Waiting for connection" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+while ! grep -q "Waiting for connection\|Server listening on port" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     # Show server output for debugging
     if [ -f "$SERVER_DIR/$SERVER_BIN.log" ]; then
         echo "Server output (waiting for startup):"
