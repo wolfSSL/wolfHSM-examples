@@ -86,7 +86,12 @@ cd "$SERVER_DIR/Build" || exit 1
 
 # Start server with debug output
 echo "Starting server in directory: $(pwd)"
-strace "$SERVER_FULL_PATH" > server.log 2>&1 &
+echo "Server binary permissions:"
+ls -l "$SERVER_FULL_PATH"
+echo "Server binary dependencies:"
+ldd "$SERVER_FULL_PATH"
+
+"$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
