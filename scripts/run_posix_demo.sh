@@ -75,8 +75,12 @@ fi
 echo "Running server from: $SERVER_FULL_PATH"
 echo "Initializing wolfCrypt and starting server..."
 # Start server and capture output
-mkdir -p "$(dirname "$SERVER_FULL_PATH")"
 cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
+if [ ! -f "wh_server_tcp.elf" ]; then
+    echo "Error: Server binary not found at $(pwd)/wh_server_tcp.elf"
+    ls -la
+    exit 1
+fi
 ./wh_server_tcp.elf > server.log 2>&1 &
 SERVER_PID=$!
 cd - >/dev/null || exit 1
