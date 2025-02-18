@@ -31,7 +31,7 @@ jobs:
       run: |
         cd wolfssl
         ./autogen.sh
-        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden --enable-static --enable-sp --enable-sp-math --enable-sp-math-all
+        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden --enable-static
         make
         sudo make install
         sudo ldconfig
@@ -49,7 +49,7 @@ jobs:
       run: |
         cd wolfhsm
         ./autogen.sh
-        ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples --enable-static
+        CFLAGS="-I${{ github.workspace }}/wolfssl/include" LDFLAGS="-L${{ github.workspace }}/wolfssl/lib" ./configure --with-wolfssl=${{ github.workspace }}/wolfssl --enable-debug --enable-examples --enable-static
         make
         sudo make install
         sudo ldconfig
