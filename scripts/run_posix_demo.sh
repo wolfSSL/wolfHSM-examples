@@ -16,12 +16,19 @@
 # - 1: Error (build failure, server startup failure, or client error)
 set -e
 
+# Set default paths relative to script location
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+: "${WOLFSSL_DIR:="$REPO_ROOT/../wolfssl"}"
+: "${WOLFHSM_DIR:="$REPO_ROOT/../wolfhsm"}"
+
 # Check required environment variables
-if [ -z "$WOLFSSL_DIR" ] || [ -z "$WOLFHSM_DIR" ]; then
-    echo "Error: WOLFSSL_DIR and WOLFHSM_DIR environment variables must be set"
-    echo "Example:"
-    echo "  export WOLFSSL_DIR=/path/to/wolfssl"
-    echo "  export WOLFHSM_DIR=/path/to/wolfhsm"
+if [ ! -d "$WOLFSSL_DIR" ] || [ ! -d "$WOLFHSM_DIR" ]; then
+    echo "Error: WOLFSSL_DIR and WOLFHSM_DIR must point to valid directories"
+    echo "Current values:"
+    echo "  WOLFSSL_DIR=$WOLFSSL_DIR"
+    echo "  WOLFHSM_DIR=$WOLFHSM_DIR"
+    echo "You can override these by setting the environment variables"
     exit 1
 fi
 
