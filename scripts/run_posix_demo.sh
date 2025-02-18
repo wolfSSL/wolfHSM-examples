@@ -35,8 +35,8 @@ fi
 # Configuration
 SERVER_DIR="."
 CLIENT_DIR="../wh_client_tcp"
-SERVER_BIN="Build/wh_server_tcp.elf"
-CLIENT_BIN="Build/wh_client_tcp.elf"
+SERVER_BIN="./Build/wh_server_tcp.elf"
+CLIENT_BIN="../wh_client_tcp/Build/wh_client_tcp.elf"
 TIMEOUT_SECS=30  # Increased timeout for wolfCrypt initialization
 
 # Cleanup function
@@ -54,13 +54,13 @@ cleanup() {
 trap cleanup EXIT
 
 # Verify binaries exist
-if [ ! -f "$SERVER_DIR/$SERVER_BIN" ]; then
-    echo "Error: Server binary not found at $SERVER_DIR/$SERVER_BIN"
+if [ ! -f "$SERVER_BIN" ]; then
+    echo "Error: Server binary not found at $SERVER_BIN"
     exit 1
 fi
 
-if [ ! -f "$CLIENT_DIR/$CLIENT_BIN" ]; then
-    echo "Error: Client binary not found at $CLIENT_DIR/$CLIENT_BIN"
+if [ ! -f "$CLIENT_BIN" ]; then
+    echo "Error: Client binary not found at $CLIENT_BIN"
     exit 1
 fi
 
