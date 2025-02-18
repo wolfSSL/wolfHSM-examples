@@ -35,8 +35,8 @@ fi
 # Configuration
 SERVER_DIR="posix/tcp/wh_server_tcp"
 CLIENT_DIR="posix/tcp/wh_client_tcp"
-SERVER_BIN="Build/wh_server_tcp.elf"
-CLIENT_BIN="Build/wh_client_tcp.elf"
+SERVER_BIN="${SERVER_DIR}/Build/wh_server_tcp.elf"
+CLIENT_BIN="${CLIENT_DIR}/Build/wh_client_tcp.elf"
 TIMEOUT_SECS=60  # Increased timeout for wolfCrypt initialization
 
 # Cleanup function
@@ -75,14 +75,14 @@ fi
 echo "Running server from: $SERVER_FULL_PATH"
 echo "Initializing wolfCrypt and starting server..."
 # Start server and capture output
-cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
-if [ ! -f "Build/wh_server_tcp.elf" ]; then
-    echo "Error: Server binary not found at $(pwd)/Build/wh_server_tcp.elf"
-    ls -la
-    ls -la Build/ 2>/dev/null || true
+cd "$REPO_ROOT" || exit 1
+if [ ! -f "$SERVER_BIN" ]; then
+    echo "Error: Server binary not found at $SERVER_BIN"
+    ls -la "$SERVER_DIR"
+    ls -la "$SERVER_DIR/Build/" 2>/dev/null || true
     exit 1
 fi
-./Build/wh_server_tcp.elf > server.log 2>&1 &
+"./$SERVER_BIN" > "$SERVER_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 cd - >/dev/null || exit 1
 
