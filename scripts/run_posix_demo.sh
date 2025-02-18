@@ -117,8 +117,13 @@ echo "Starting server with working directory: $(pwd)"
 cd "$WORK_DIR" || exit 1
 echo "Changed to server directory: $(pwd)"
 
+# Ensure proper permissions
+chmod 755 "$(basename "$SERVER_FULL_PATH")"
+chmod -R 755 data
+
 # Start server from its directory
-./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+echo "Starting server: ./$(basename "$SERVER_FULL_PATH")"
+strace ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
