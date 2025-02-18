@@ -33,10 +33,10 @@ if [ ! -d "$WOLFSSL_DIR" ] || [ ! -d "$WOLFHSM_DIR" ]; then
 fi
 
 # Configuration
-SERVER_DIR="."
-CLIENT_DIR="../wh_client_tcp"
-SERVER_BIN="./Build/wh_server_tcp.elf"
-CLIENT_BIN="../wh_client_tcp/Build/wh_client_tcp.elf"
+SERVER_DIR="posix/tcp/wh_server_tcp"
+CLIENT_DIR="posix/tcp/wh_client_tcp"
+SERVER_BIN="Build/wh_server_tcp.elf"
+CLIENT_BIN="Build/wh_client_tcp.elf"
 TIMEOUT_SECS=60  # Increased timeout for wolfCrypt initialization
 
 # Cleanup function
