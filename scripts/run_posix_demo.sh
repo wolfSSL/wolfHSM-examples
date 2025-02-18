@@ -87,8 +87,13 @@ while [ ! -f "$SERVER_BIN.log" ] && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     COUNTER=$((COUNTER + 1))
 done
 
-# Give wolfCrypt time to initialize
-sleep 5
+if [ ! -f "$SERVER_BIN.log" ]; then
+    echo "Error: Server log file not created within $TIMEOUT_SECS seconds"
+    exit 1
+fi
+
+# Reset counter for server startup wait
+COUNTER=0
 echo "Server PID: $SERVER_PID"
 
 # Check if server process is still running
