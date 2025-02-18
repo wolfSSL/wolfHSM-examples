@@ -21,11 +21,6 @@ jobs:
         repository: wolfssl/wolfssl
         path: wolfssl
 
-    - name: Install build dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y autoconf automake libtool pkg-config build-essential
-
     # pull and build wolfhsm
     - name: Checkout wolfhsm
       uses: actions/checkout@master
@@ -39,23 +34,12 @@ jobs:
     - name: Build POSIX TCP client
       run: cd posix/tcp/wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
 
-    # Start the server in the background
-    - name: Run POSIX TCP server
+    # Run server and client tests
+    - name: Run POSIX TCP tests
       run: |
-        cd posix/tcp/wh_server_tcp
-        ./Build/wh_server_tcp.elf &
-        TCP_SERVER_PID=$!
-        echo "TCP_SERVER_PID=$TCP_SERVER_PID" >> $GITHUB_ENV
-
-    # Run the client that connects to the server
-    - name: Run POSIX TCP client
-      run: |
-        cd posix/tcp/wh_client_tcp
-        ./Build/wh_client_tcp.elf
-
-    # Optional: Kill the server process if it doesn't exit on its own
-    - name: Cleanup POSIX TCP server
-      if: always()
-      run: kill $TCP_SERVER_PID || true
+        chmod +x scripts/run_posix_demo.sh
+        export WOLFSSL_DIR=../../../wolfssl
+        export WOLFHSM_DIR=../../../wolfhsm
+        ./scripts/run_posix_demo.sh
 
 

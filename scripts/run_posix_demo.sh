@@ -46,25 +46,16 @@ cleanup() {
 # Set up cleanup trap
 trap cleanup EXIT
 
-# Build server
-echo "Building server..."
-cd "$SERVER_DIR"
-make clean && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
-if [ ! -f "$SERVER_BIN" ]; then
-    echo "Error: Server build failed"
+# Verify binaries exist
+if [ ! -f "$SERVER_DIR/$SERVER_BIN" ]; then
+    echo "Error: Server binary not found at $SERVER_DIR/$SERVER_BIN"
     exit 1
 fi
-cd ../../../
 
-# Build client
-echo "Building client..."
-cd "$CLIENT_DIR"
-make clean && make WOLFSSL_DIR=${WOLFSSL_DIR} WOLFHSM_DIR=${WOLFHSM_DIR}
-if [ ! -f "$CLIENT_BIN" ]; then
-    echo "Error: Client build failed"
+if [ ! -f "$CLIENT_DIR/$CLIENT_BIN" ]; then
+    echo "Error: Client binary not found at $CLIENT_DIR/$CLIENT_BIN"
     exit 1
 fi
-cd ../../../
 
 # Start server and redirect output to log file
 echo "Starting server..."
