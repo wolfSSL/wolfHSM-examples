@@ -62,7 +62,7 @@ jobs:
         # Build test which includes all components
         cd test
         mkdir -p Build
-        make -j$(nproc) WOLFSSL_DIR=/usr DEBUG=1
+        make -j$(nproc) WOLFSSL_DIR=/usr DEBUG=1 WOLFHSM_DIR=..
         cd ../..
 
     # Run server and client tests
