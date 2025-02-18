@@ -123,16 +123,17 @@ chmod -R 755 data
 
 # Start server from its directory
 echo "Starting server: ./$(basename "$SERVER_FULL_PATH")"
-strace ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
-sleep 5
+sleep 2
 
 # Check initial server output
 if [ -f server.log ]; then
     echo "Initial server output:"
     cat server.log
+    ls -la data/
 fi
 
 # Check server process
