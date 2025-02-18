@@ -99,6 +99,10 @@ echo "Server working directory: $(pwd)"
 echo "Server environment:"
 env | grep -E "WOLF|LD|PATH"
 
+# Create log file with proper permissions
+touch server.log
+chmod 666 server.log
+
 # Start server with debug output
 "$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
