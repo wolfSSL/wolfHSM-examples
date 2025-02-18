@@ -117,13 +117,14 @@ echo "Starting server with working directory: $(pwd)"
 cd "$WORK_DIR" || exit 1
 echo "Changed to server directory: $(pwd)"
 
-# Ensure proper permissions
+# Ensure proper permissions and clean state
 chmod 755 "$(basename "$SERVER_FULL_PATH")"
 chmod -R 755 data
+rm -f server.log
 
 # Start server from its directory
 echo "Starting server: ./$(basename "$SERVER_FULL_PATH")"
-./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
