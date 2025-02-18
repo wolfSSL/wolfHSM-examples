@@ -83,11 +83,24 @@ echo "Initializing wolfCrypt and starting server..."
 cd "$REPO_ROOT" || exit 1
 mkdir -p "$SERVER_DIR/Build"
 cd "$SERVER_DIR/Build" || exit 1
+
+# Start server with debug output
 "$SERVER_FULL_PATH" > server.log 2>&1 &
-# Print server output immediately for debugging
-tail -f server.log &
-TAIL_PID=$!
 SERVER_PID=$!
+
+# Wait a moment for the process to start
+sleep 1
+
+# Check if server process is still running
+if ! kill -0 $SERVER_PID 2>/dev/null; then
+    echo "Error: Server failed to start"
+    if [ -f server.log ]; then
+        echo "Server log contents:"
+        cat server.log
+    fi
+    exit 1
+fi
+
 cd - >/dev/null || exit 1
 
 # Initialize counter and wait for log file to be created
