@@ -38,6 +38,8 @@ jobs:
     - name: Run POSIX TCP tests
       run: |
         chmod +x scripts/run_posix_demo.sh
-        WOLFSSL_DIR=wolfssl WOLFHSM_DIR=wolfhsm TERM=xterm-256color ./scripts/run_posix_demo.sh
+        pwd
+        ls -la
+        WOLFSSL_DIR=$PWD/wolfssl WOLFHSM_DIR=$PWD/wolfhsm TERM=xterm-256color ./scripts/run_posix_demo.sh
 
 
