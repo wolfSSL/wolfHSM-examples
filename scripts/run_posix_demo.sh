@@ -104,6 +104,11 @@ touch server.log
 chmod 666 server.log
 
 # Start server with debug output
+echo "Starting server in directory: $(pwd)"
+echo "Server binary permissions:"
+ls -l "$SERVER_FULL_PATH"
+
+# Start server
 "$SERVER_FULL_PATH" > server.log 2>&1 &
 SERVER_PID=$!
 
@@ -114,6 +119,12 @@ sleep 2
 if [ -f server.log ]; then
     echo "Initial server output:"
     cat server.log
+fi
+
+# Check server process
+if ! kill -0 $SERVER_PID 2>/dev/null; then
+    echo "Error: Server failed to start"
+    exit 1
 fi
 
 # Check if server process is still running and show process info
