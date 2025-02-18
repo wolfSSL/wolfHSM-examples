@@ -1,4 +1,9 @@
 #!/bin/bash
+# This script demonstrates how to:
+# 1. Build the wolfHSM POSIX TCP server and client
+# 2. Start the server and wait for it to be ready
+# 3. Run the client examples against the server
+# 4. Handle cleanup of processes properly
 set -e
 
 # Configuration
@@ -42,17 +47,14 @@ if [ ! -f "$CLIENT_BIN" ]; then
 fi
 cd ../../../
 
-# Start server
+# Start server and redirect output to log file
 echo "Starting server..."
-"$SERVER_DIR/$SERVER_BIN" &
+"$SERVER_DIR/$SERVER_BIN" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
 SERVER_PID=$!
 
 # Wait for server to be ready
 echo "Waiting for server to start..."
 COUNTER=0
-# Redirect server output to log file
-"$SERVER_DIR/$SERVER_BIN" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
-SERVER_PID=$!
 
 # Wait for server to be ready
 while ! grep -q "Waiting for connection" "$SERVER_DIR/$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do

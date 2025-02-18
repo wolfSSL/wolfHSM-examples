@@ -28,36 +28,11 @@ jobs:
         repository: wolfssl/wolfhsm
         path: wolfhsm
 
-    # Build examples
-    - name: Build POSIX TCP server
-      run: ls && cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
-    - name: Build POSIX TCP client
-      run: cd posix/tcp/wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
-
-    # Start the server in the background
-    - name: Run POSIX TCP server
-      run: |
-        cd posix/tcp/wh_server_tcp
-        ./Build/wh_server_tcp.elf &
-        TCP_SERVER_PID=$!
-        echo "TCP_SERVER_PID=$TCP_SERVER_PID" >> $GITHUB_ENV
-
-    # Run the client that connects to the server
-    - name: Run POSIX TCP client
-      run: |
-        cd posix/tcp/wh_client_tcp
-        ./Build/wh_client_tcp.elf
-
-    # Build and run POSIX demo
+    # Run POSIX demo (builds and tests server/client)
     - name: Run POSIX demo
       run: |
         export WOLFSSL_DIR=../../../wolfssl
         export WOLFHSM_DIR=../../../wolfhsm
         ./run_posix_demo.sh
-
-    # Optional: Kill the server process if it doesn't exit on its own
-    - name: Cleanup POSIX TCP server
-      if: always()
-      run: kill $TCP_SERVER_PID || true
 
 
