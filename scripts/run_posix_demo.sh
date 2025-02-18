@@ -164,13 +164,13 @@ echo "  wolfHSM: $WOLFHSM_LIB"
 echo "Starting server with environment:"
 env | grep -E "WOLF|LD|PATH"
 echo "Library dependencies:"
-LD_LIBRARY_PATH="$WOLFSSL_LIB_DIR:$WOLFHSM_LIB_DIR" ldd ./$(basename "$SERVER_FULL_PATH")
+LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" ldd ./$(basename "$SERVER_FULL_PATH")
 
 # Start server with debug output
 echo "Starting server with libraries from:"
-echo "  wolfSSL: $WOLFSSL_LIB_DIR"
-echo "  wolfHSM: $WOLFHSM_LIB_DIR"
-LD_LIBRARY_PATH="$WOLFSSL_LIB_DIR:$WOLFHSM_LIB_DIR" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
+echo "  wolfSSL: $WOLFSSL_DIR"
+echo "  wolfHSM: $WOLFHSM_DIR"
+LD_LIBRARY_PATH="$WOLFSSL_DIR:$WOLFHSM_DIR" ./$(basename "$SERVER_FULL_PATH") > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait a moment for the process to start
