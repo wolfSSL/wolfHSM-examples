@@ -86,7 +86,7 @@ if ! kill -0 $SERVER_PID 2>/dev/null; then
     echo "Error: Server process died during startup"
     if [ -f "$SERVER_DIR/$SERVER_BIN.log" ]; then
         echo "Server log contents:"
-        cat "$SERVER_DIR/$SERVER_BIN.log"
+        cat "$SERVER_BIN.log"
     fi
     exit 1
 fi
@@ -105,7 +105,7 @@ while ! grep -q "Waiting for connection" "$SERVER_BIN.log" 2>/dev/null && [ $COU
     # Check for initialization errors
     if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$SERVER_BIN.log" 2>/dev/null; then
         echo "Server initialization failed:"
-        cat "$SERVER_DIR/$SERVER_BIN.log"
+        cat "$SERVER_BIN.log"
         exit 1
     fi
     if ! kill -0 $SERVER_PID 2>/dev/null; then
