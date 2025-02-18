@@ -1,9 +1,19 @@
 #!/bin/bash
-# This script demonstrates how to:
-# 1. Build the wolfHSM POSIX TCP server and client
-# 2. Start the server and wait for it to be ready
-# 3. Run the client examples against the server
-# 4. Handle cleanup of processes properly
+# This script demonstrates how to use the wolfHSM POSIX TCP example.
+#
+# The script performs the following steps:
+# 1. Builds both server and client components using the provided wolfSSL and wolfHSM
+# 2. Starts the server and waits for it to be ready to accept connections
+# 3. Runs the client examples against the server
+# 4. Handles cleanup of processes properly
+#
+# Environment variables:
+# - WOLFSSL_DIR: Path to wolfSSL installation (required)
+# - WOLFHSM_DIR: Path to wolfHSM installation (required)
+#
+# Exit codes:
+# - 0: Success
+# - 1: Error (build failure, server startup failure, or client error)
 set -e
 
 # Configuration
