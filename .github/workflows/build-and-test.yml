@@ -32,11 +32,11 @@ jobs:
     - name: Build POSIX TCP server
       run: |
         cd posix/tcp/wh_server_tcp
-        make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm/test/Build
+        make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
     - name: Build POSIX TCP client
       run: |
         cd posix/tcp/wh_client_tcp
-        make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm/test/Build
+        make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
 
     # Install build dependencies
     - name: Install dependencies
