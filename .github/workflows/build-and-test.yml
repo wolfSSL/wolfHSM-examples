@@ -26,17 +26,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y autoconf automake libtool pkg-config build-essential
 
-    # Build wolfSSL with required features
-    - name: Build wolfssl
-      run: |
-        cd wolfssl
-        ./autogen.sh
-        ./configure --enable-debug --enable-shared --enable-cryptocb --enable-aescfb --enable-keygen --enable-certgen --enable-certreq --enable-certext --enable-pkcs7 --enable-rng --enable-harden --enable-static
-        make
-        sudo make install
-        sudo ldconfig
-        cd ..
-
     # pull and build wolfhsm
     - name: Checkout wolfhsm
       uses: actions/checkout@master
@@ -44,26 +33,29 @@ jobs:
         repository: wolfssl/wolfhsm
         path: wolfhsm
 
-    # Build wolfHSM with examples enabled
-    - name: Build wolfhsm
-      run: |
-        cd wolfhsm
-        ./autogen.sh
-        ./configure --with-wolfssl=/usr/local --enable-debug --enable-examples
-        make
-        sudo make install
-        sudo ldconfig
-        cd ..
+    # Build examples
+    - name: Build POSIX TCP server
+      run: ls && cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
+    - name: Build POSIX TCP client
+      run: cd posix/tcp/wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
 
-    # Build and test POSIX examples
-    - name: Build and test POSIX examples
+    # Start the server in the background
+    - name: Run POSIX TCP server
       run: |
-        ls && cd posix/tcp/wh_server_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
-        cd ../wh_client_tcp && make WOLFSSL_DIR=../../../wolfssl WOLFHSM_DIR=../../../wolfhsm
-        cd ../wh_server_tcp && ./Build/wh_server_tcp.elf &
-        SERVER_PID=$!
-        echo "TCP_SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
-        cd ../wh_client_tcp && ./Build/wh_client_tcp.elf
-        kill $SERVER_PID || true
+        cd posix/tcp/wh_server_tcp
+        ./Build/wh_server_tcp.elf &
+        TCP_SERVER_PID=$!
+        echo "TCP_SERVER_PID=$TCP_SERVER_PID" >> $GITHUB_ENV
+
+    # Run the client that connects to the server
+    - name: Run POSIX TCP client
+      run: |
+        cd posix/tcp/wh_client_tcp
+        ./Build/wh_client_tcp.elf
+
+    # Optional: Kill the server process if it doesn't exit on its own
+    - name: Cleanup POSIX TCP server
+      if: always()
+      run: kill $TCP_SERVER_PID || true
 
 
