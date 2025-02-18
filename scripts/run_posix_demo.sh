@@ -75,19 +75,18 @@ fi
 echo "Running server from: $SERVER_FULL_PATH"
 echo "Initializing wolfCrypt and starting server..."
 # Start server and capture output
-cd "$(dirname "$SERVER_FULL_PATH")" || exit 1
-"$SERVER_FULL_PATH" > "$SERVER_BIN.log" 2>&1 &
+mkdir -p "$(dirname "$SERVER_FULL_PATH")"
+"$SERVER_FULL_PATH" > "$(dirname "$SERVER_FULL_PATH")/server.log" 2>&1 &
 SERVER_PID=$!
-cd - >/dev/null || exit 1
 
 # Initialize counter and wait for log file to be created
 COUNTER=0
-while [ ! -f "$SERVER_BIN.log" ] && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+while [ ! -f "$(dirname "$SERVER_FULL_PATH")/server.log" ] && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     sleep 1
     COUNTER=$((COUNTER + 1))
 done
 
-if [ ! -f "$SERVER_BIN.log" ]; then
+if [ ! -f "$(dirname "$SERVER_FULL_PATH")/server.log" ]; then
     echo "Error: Server log file not created within $TIMEOUT_SECS seconds"
     exit 1
 fi
@@ -98,30 +97,30 @@ echo "Server PID: $SERVER_PID"
 
 # Check if server process is still running and wait for initialization
 echo "Waiting for server to initialize..."
-while ! grep -q "Waiting for connection\|Server connected" "$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+while ! grep -q "Waiting for connection\|Server connected" "$(dirname "$SERVER_FULL_PATH")/server.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     echo "Checking server status... $COUNTER/$TIMEOUT_SECS seconds"
 
     # Check if server process is still running
     if ! kill -0 $SERVER_PID 2>/dev/null; then
         echo -e "\nError: Server process died during startup"
-        if [ -f "$SERVER_BIN.log" ]; then
+        if [ -f "$(dirname "$SERVER_FULL_PATH")/server.log" ]; then
             echo "Server log contents:"
-            cat "$SERVER_BIN.log"
+            cat "$(dirname "$SERVER_FULL_PATH")/server.log"
         fi
         exit 1
     fi
 
     # Check for initialization errors
-    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$SERVER_BIN.log" 2>/dev/null; then
+    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$(dirname "$SERVER_FULL_PATH")/server.log" 2>/dev/null; then
         echo -e "\nServer initialization failed:"
-        cat "$SERVER_BIN.log"
+        cat "$(dirname "$SERVER_FULL_PATH")/server.log"
         exit 1
     fi
 
     # Show current server output
-    if [ -f "$SERVER_BIN.log" ] && [ $((COUNTER % 10)) -eq 0 ]; then
+    if [ -f "$(dirname "$SERVER_FULL_PATH")/server.log" ] && [ $((COUNTER % 10)) -eq 0 ]; then
         echo -e "\nCurrent server output at $COUNTER seconds:"
-        tail -n 5 "$SERVER_BIN.log"
+        tail -n 5 "$(dirname "$SERVER_FULL_PATH")/server.log"
         echo "..."
     fi
 
@@ -132,7 +131,7 @@ done
 if [ $COUNTER -ge $TIMEOUT_SECS ]; then
     echo -e "\nError: Server failed to initialize within $TIMEOUT_SECS seconds"
     echo "Server log contents:"
-    cat "$SERVER_BIN.log"
+    cat "$(dirname "$SERVER_FULL_PATH")/server.log"
     exit 1
 fi
 
@@ -143,16 +142,16 @@ echo "Waiting for server to start..."
 COUNTER=0
 
 # Wait for server to be ready
-while ! grep -q "Server connected\|Waiting for connection" "$SERVER_BIN.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
+while ! grep -q "Server connected\|Waiting for connection" "$(dirname "$SERVER_FULL_PATH")/server.log" 2>/dev/null && [ $COUNTER -lt $TIMEOUT_SECS ]; do
     # Show server output for debugging
-    if [ -f "$SERVER_BIN.log" ]; then
+    if [ -f "$(dirname "$SERVER_FULL_PATH")/server.log" ]; then
         echo "Server output (waiting for startup):"
-        cat "$SERVER_BIN.log"
+        cat "$(dirname "$SERVER_FULL_PATH")/server.log"
     fi
     # Check for initialization errors
-    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$SERVER_BIN.log" 2>/dev/null; then
+    if grep -q "Failed to\|Error:\|Failed to initialize\|Failed to wc_InitRng_ex\|Failed to wolfCrypt_Cleanup\|Failed to wc_FreeRng" "$(dirname "$SERVER_FULL_PATH")/server.log" 2>/dev/null; then
         echo "Server initialization failed:"
-        cat "$SERVER_BIN.log"
+        cat "$(dirname "$SERVER_FULL_PATH")/server.log"
         exit 1
     fi
     if ! kill -0 $SERVER_PID 2>/dev/null; then
@@ -166,7 +165,7 @@ done
 if [ $COUNTER -ge $TIMEOUT_SECS ]; then
     echo "Error: Server failed to start within $TIMEOUT_SECS seconds"
     echo "Server log contents:"
-    cat "$SERVER_BIN.log"
+    cat "$(dirname "$SERVER_FULL_PATH")/server.log"
     exit 1
 fi
 
@@ -175,7 +174,7 @@ echo "Running client..."
 if ! "$CLIENT_DIR/$CLIENT_BIN"; then
     echo "Error: Client failed to run"
     echo "Server log contents:"
-    cat "$SERVER_BIN.log"
+    cat "$(dirname "$SERVER_FULL_PATH")/server.log"
     exit 1
 fi
 
