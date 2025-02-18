@@ -57,13 +57,13 @@ if [ ! -f "$CLIENT_BIN" ]; then
 fi
 cd ../../../
 
-# Create log file
-touch "$SERVER_DIR/$SERVER_BIN.log"
-
 # Start server and redirect output to log file
 echo "Starting server..."
-"$SERVER_DIR/$SERVER_BIN" > >(tee "$SERVER_DIR/$SERVER_BIN.log") 2>&1 &
+"$SERVER_DIR/$SERVER_BIN" > "$SERVER_DIR/$SERVER_BIN.log" 2>&1 &
 SERVER_PID=$!
+
+# Give the server a moment to write initial output
+sleep 1
 
 # Wait for server to be ready
 echo "Waiting for server to start..."
