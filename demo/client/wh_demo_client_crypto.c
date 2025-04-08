@@ -1233,7 +1233,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
     /* verify the cmac tag using the special HSM oneshot function
      * wh_Client_AesCmacVerify which is required for pre cached keys */
     ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
-                                  strlen(message), keyId, NULL);
+                                  strlen(message), keyId, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("CMAC hash and verify failed with imported key %d\n", ret);
         goto exit;
@@ -1287,7 +1287,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
      * function which is required for pre cached keys */
     outLen = sizeof(tag);
     ret    = wh_Client_CmacAesGenerate(cmac, tag, &outLen, (byte*)message,
-                                       sizeof(message), keyId, NULL);
+                                       sizeof(message), keyId, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wh_Client_AesCmacGenerate %d\n", ret);
         goto exit;
@@ -1312,7 +1312,7 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
     /* verify the cmac tag using the special HSM oneshot function
      * wh_Client_AesCmacVerify which is required for pre cached keys */
     ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
-                                  sizeof(message), keyId, NULL);
+                                  sizeof(message), keyId, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("CMAC hash and verify oneshot failed with imported key %d\n",
                ret);
