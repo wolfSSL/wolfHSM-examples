@@ -84,7 +84,7 @@ static int loadAndStoreKeys(whServerContext* server, whKeyId* outKeyId,
 
     /* Get HSM assigned keyId if not set */
     if (keyId == WH_KEYID_ERASED) {
-        ret = hsmGetUniqueId(server, &meta.id);
+        ret = wh_Server_KeystoreGetUniqueId(server, &meta.id);
         printf("got unique ID = 0x%02X\n", meta.id & WH_KEYID_MASK);
     }
     printf(
@@ -93,14 +93,14 @@ static int loadAndStoreKeys(whServerContext* server, whKeyId* outKeyId,
         WH_KEYID_ID(meta.id));
 
     if (ret == 0) {
-        ret = hsmCacheKey(server, &meta, keyBuf);
+        ret = wh_Server_KeystoreCacheKey(server, &meta, keyBuf);
         if (ret != 0) {
-            printf("Failed to hsmCacheKey, ret=%d\n", ret);
+            printf("Failed to wh_Server_KeystoreCacheKey, ret=%d\n", ret);
             return ret;
         }
     }
     else {
-        printf("Failed to hsmGetUniqueId, ret=%d\n", ret);
+        printf("Failed to wh_Server_KeystoreGetUniqueId, ret=%d\n", ret);
         return ret;
     }
 
