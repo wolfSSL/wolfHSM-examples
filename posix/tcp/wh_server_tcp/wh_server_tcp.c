@@ -161,19 +161,12 @@ static void trimWhitespace(char* str)
  * decimal) */
 static int parseInteger(const char* str, uint32_t maxValue, uint32_t* result)
 {
-    char* endPtr;
-    long  value;
+    char*         endPtr;
+    unsigned long value;
 
-    if (strstr(str, "0x") == str) {
-        /* Parse as hexadecimal */
-        value = strtol(str, &endPtr, 16);
-    }
-    else {
-        /* Parse as decimal */
-        value = strtol(str, &endPtr, 10);
-    }
+    value = strtoul(str, &endPtr, 0);
 
-    if (*endPtr != '\0' || value < 0 || value > maxValue) {
+    if (*endPtr != '\0' || value > maxValue) {
         return 0; /* Error: invalid number */
     }
 
