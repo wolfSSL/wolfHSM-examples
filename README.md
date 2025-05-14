@@ -34,12 +34,45 @@ Set the `WOLFHSM_DIR` and `WOLFSSL_DIR` variables to point to your local install
 ### Executables
 In the root directory for wolfHSM-examples run `./posix/tcp/wh_server_tcp/Build/wh_server_tcp.elf` to launch the server. In a separate shell, run `./posix/tcp/wh_client_tcp/Build/wh_client_tcp.elf` to launch the client.
 
-### Loading a key on the server
-The example server supports loading a key at a specific keyId, passed as arguments on the command line. To load a key at a keyId in the server example, invoke the server with the `--key` and `--id` arguments.
+### Initializing server NVM
+The server example supports two methods for initializing its Non-Volatile Memory (NVM) with cryptographic keys and objects.
+
+#### Loading a single key
+To load a single key with a specific keyId, use the `--key` and `--id` arguments:
 
 ```
 ./wh_server_tcp.elf --key /path/to/key.der --id <keyId>
 ```
+
+You can also specify a client ID with the `--client` argument (default is 12):
+
+```
+./wh_server_tcp.elf --key /path/to/key.der --id <keyId> --client <clientId>
+```
+
+#### Using an NVM initialization file
+For more complex scenarios requiring multiple keys or objects, use the `--nvminit` argument to specify a configuration file:
+
+```
+./wh_server_tcp.elf --nvminit /path/to/nvminit.conf
+```
+
+The NVM initialization file allows you to define multiple keys and objects to be loaded into the server's NVM. The file format is as follows:
+
+```
+# Keys are defined as: key <clientId> <keyId> <access> <flags> <label> <filePath>
+key 1 0x01 0x0000 0x0000 "Example Key 1" /path/to/key1.der
+key 2 0x02 0x0000 0x0000 "Example Key 2" /path/to/key2.der
+
+# Objects are defined as: obj <id> <access> <flags> <label> <filePath>
+obj 0x1000 0x0000 0x0000 "Example Object" /path/to/object.bin
+```
+
+Each entry defines:
+- For keys: clientId, keyId, access permissions, flags, label, and file path
+- For objects: object ID, access permissions, flags, label, and file path
+
+Numbers can be specified in decimal or hexadecimal (prefixed with 0x) format. For more information on nvminit files see the [whnvmtool documentation](https://github.com/wolfSSL/wolfHSM/blob/main/tools/whnvmtool/README.md)
 
 ### Results
 After all steps are you complete you should see the following outputs.
