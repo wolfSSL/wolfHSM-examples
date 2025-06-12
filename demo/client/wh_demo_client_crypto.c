@@ -1201,7 +1201,7 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
     }
 
     /* hash the message */
-    ret = wc_CmacUpdate(cmac, (byte*)message, strlen(message));
+    ret = wc_CmacUpdate(cmac, (byte*)message, sizeof(message));
     if (ret != 0) {
         printf("Failed to wc_CmacUpdate %d\n", ret);
         goto exit;
@@ -1215,7 +1215,19 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
         goto exit;
     }
 
-    /* cache the key on the HSM */
+    /* Now let's verify the CMAC we just computed We should reinitialize the
+     * CMAC struct and set the keyId again since we finalized the CMAC operation
+     */
+
+    /* initialize the cmac struct */
+    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL, WH_DEV_ID);
+    if (ret != 0) {
+        printf("Failed to wc_InitCmac_ex %d\n", ret);
+        goto exit;
+    }
+
+    /* cache the key on the HSM. This is required because the key is evicted
+     * after the non-DMA CMAC operation is finalized */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
                              sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
@@ -1230,10 +1242,11 @@ int wh_DemoClient_CryptoCmacImport(whClientContext* clientContext)
         goto exit;
     }
 
-    /* verify the cmac tag using the special HSM oneshot function
-     * wh_Client_AesCmacVerify which is required for pre cached keys */
-    ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
-                                  strlen(message), keyId, NULL, WH_DEV_ID);
+    /* verify the cmac tag using the wolfCrypt oneshot API, which should yield
+     * the best one-shot performance. No need to pass a key since the key is
+     * cached on the HSM and the keyId is associated with the CMAC struct */
+    ret = wc_AesCmacVerify_ex(cmac, tag, sizeof(tag), (byte*)message,
+                              sizeof(message), NULL, 0, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("CMAC hash and verify failed with imported key %d\n", ret);
         goto exit;
@@ -1283,18 +1296,30 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
         goto exit;
     }
 
-    /* generate the cmac tag using the special HSM wh_Client_AesCmacGenerate
-     * function which is required for pre cached keys */
+    /* generate the cmac tag using the wolfCrypt oneshot API, which should yield
+     * the best one-shot performance. No need to pass a key since the key is
+     * cached on the HSM and the keyId is associated with the CMAC struct */
     outLen = sizeof(tag);
-    ret    = wh_Client_CmacAesGenerate(cmac, tag, &outLen, (byte*)message,
-                                       sizeof(message), keyId, NULL, WH_DEV_ID);
+    ret    = wc_AesCmacGenerate_ex(cmac, tag, &outLen, (byte*)message,
+                                   sizeof(message), NULL, 0, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("Failed to wh_Client_AesCmacGenerate %d\n", ret);
         goto exit;
     }
 
-    /* cache the key on the HSM again, cmac keys are evicted after wc_CmacFinal
-     * is called */
+    /* Now, to verify, we need to re-initialize the CMAC struct and set the
+     * keyId again. This is because the key is evicted after the non-DMA CMAC
+     * operation is finalized */
+
+    /* initialize the cmac struct */
+    ret = wc_InitCmac_ex(cmac, NULL, 0, WC_CMAC_AES, NULL, NULL, WH_DEV_ID);
+    if (ret != 0) {
+        printf("Failed to wc_InitCmac_ex %d\n", ret);
+        goto exit;
+    }
+
+    /* cache the key on the HSM again, cmac keys are evicted after non-DMA CMAC
+     * operations are finalized is called */
     ret = wh_Client_KeyCache(clientContext, 0, (uint8_t*)keyLabel,
                              sizeof(keyLabel), key, sizeof(key), &keyId);
     if (ret != 0) {
@@ -1309,10 +1334,11 @@ int wh_DemoClient_CryptoCmacOneshotImport(whClientContext* clientContext)
         goto exit;
     }
 
-    /* verify the cmac tag using the special HSM oneshot function
-     * wh_Client_AesCmacVerify which is required for pre cached keys */
-    ret = wh_Client_CmacAesVerify(cmac, tag, sizeof(tag), (byte*)message,
-                                  sizeof(message), keyId, NULL, WH_DEV_ID);
+    /* verify the cmac tag using the wolfCrypt oneshot API, which should yield
+     * the best one-shot performance. No need to pass a key since the key is
+     * cached on the HSM and the keyId is associated with the CMAC struct */
+    ret = wc_AesCmacVerify_ex(cmac, tag, sizeof(tag), (byte*)message,
+                              sizeof(message), NULL, 0, NULL, WH_DEV_ID);
     if (ret != 0) {
         printf("CMAC hash and verify oneshot failed with imported key %d\n",
                ret);
